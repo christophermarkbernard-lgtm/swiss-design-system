@@ -1,0 +1,44 @@
+{
+  "name": "swiss-design-system",
+  "version": "0.1.0",
+  "description": "Swiss International Style design system — dark-mode first, grid-based, typographically precise",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "index.js",
+    "tailwind.config.js"
+  ],
+  "scripts": {
+    "build:css": "npx tailwindcss -i src/css/base.css -o dist/swiss.css --minify",
+    "build:css:watch": "npx tailwindcss -i src/css/base.css -o dist/swiss.css --watch",
+    "typecheck": "tsc --noEmit",
+    "showcase": "cd showcase && npx tailwindcss -i input.css -o swiss.css --watch"
+  },
+  "keywords": [
+    "design-system",
+    "swiss",
+    "tailwind",
+    "react",
+    "dark-mode",
+    "typography"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0",
+    "tailwindcss": ">=3.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.0"
+  }
+}

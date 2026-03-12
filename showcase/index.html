@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swiss Design System — Component Showcase</title>
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── CSS Custom Properties ──────────────────────── */
+    :root {
+      --bg:         #080808;
+      --surface-1:  #111111;
+      --surface-2:  #1a1a1a;
+      --border:     #272727;
+      --text-1:     #f0ede8;
+      --text-2:     #6b6b6b;
+      --red:        #e63946;
+      --yellow:     #f0c040;
+      --white:      #f5f5f0;
+      --font:       'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Light mode override */
+    html:not(.dark) {
+      --bg:        #f5f5f0;
+      --surface-1: #ffffff;
+      --surface-2: #f0ede8;
+      --border:    #ddd9d4;
+      --text-1:    #111111;
+      --text-2:    #6b6b6b;
+    }
+
+    /* ── Reset ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+    ul, ol { list-style: none; padding: 0; margin: 0; }
+    a { color: var(--red); text-decoration: none; }
+
+    /* ── Layout ─────────────────────────────────────── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 80px 0; border-top: 1px solid var(--border); }
+    .section:first-of-type { border-top: none; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin: 0 0 8px;
+    }
+    .section-desc {
+      font-size: 16px;
+      color: var(--text-2);
+      margin: 0 0 48px;
+    }
+
+    .demo-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .demo-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      min-width: 80px;
+    }
+
+    /* ── Grid ───────────────────────────────────────── */
+    .swiss-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+
+    /* ── Nav ────────────────────────────────────────── */
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      background-color: var(--bg);
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; }
+    .nav-logo {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-1);
+      padding: 16px 20px 16px 0;
+      margin-right: 8px;
+      border-right: 1px solid var(--border);
+    }
+    .nav-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 18px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 120ms, border-color 120ms;
+    }
+    .nav-item:hover { color: var(--text-1); text-decoration: none; }
+    .nav-item.active { color: var(--text-1); border-bottom-color: var(--red); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+
+    /* ── Buttons ────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+      font-family: var(--font);
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background-color 120ms, color 120ms, border-color 120ms;
+      white-space: nowrap;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn-sm { padding: 6px 12px; font-size: 11px; }
+    .btn-md { padding: 10px 20px; }
+    .btn-lg { padding: 14px 28px; font-size: 16px; letter-spacing: 0.05em; }
+
+    .btn-primary { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-primary:hover { background: #cc2f3b; border-color: #cc2f3b; }
+
+    .btn-ghost { background: transparent; color: var(--text-1); border-color: var(--border); }
+    .btn-ghost:hover { border-color: var(--text-2); }
+
+    .btn-danger { background: transparent; color: var(--red); border-color: var(--red); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+
+    /* ── Cards ──────────────────────────────────────── */
+    .card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 24px;
+    }
+    .card-elevated { background: var(--surface-2); }
+    .card-accent-red { border-left: 3px solid var(--red); }
+    .card-accent-yellow { border-left: 3px solid var(--yellow); }
+
+    /* ── Badges ─────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 1px;
+    }
+    .badge-neutral { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
+    .badge-red { background: rgba(230,57,70,0.12); color: var(--red); border: 1px solid rgba(230,57,70,0.25); }
+    .badge-yellow { background: rgba(240,192,64,0.12); color: var(--yellow); border: 1px solid rgba(240,192,64,0.25); }
+
+    /* ── Inputs ─────────────────────────────────────── */
+    .input {
+      width: 100%;
+      background: transparent;
+      color: var(--text-1);
+      font-family: var(--font);
+      font-size: 16px;
+      padding: 10px 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      outline: none;
+      transition: border-color 120ms;
+    }
+    .input:focus { border-bottom-color: var(--text-1); }
+    .input::placeholder { color: var(--text-2); }
+    .input-outlined {
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 10px 14px;
+      background: var(--surface-1);
+    }
+    .input-outlined:focus { border-color: var(--text-1); }
+
+    .input-group { display: flex; flex-direction: column; gap: 8px; }
+    .input-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+    .input-error { font-size: 13px; color: var(--red); }
+
+    /* ── Select ─────────────────────────────────────── */
+    .select {
+      width: 100%;
+      background: var(--surface-1);
+      color: var(--text-1);
+      font-family: var(--font);
+      font-size: 16px;
+      padding: 10px 36px 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 120ms;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%236b6b6b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+    .select:focus { border-color: var(--text-1); }
+
+    /* ── Table ──────────────────────────────────────── */
+    .swiss-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+    .swiss-table thead tr { border-bottom: 1px solid var(--border); }
+    .swiss-table th {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-2);
+      text-align: left; padding: 8px 16px 8px 0;
+    }
+    .swiss-table td {
+      padding: 14px 16px 14px 0; color: var(--text-1);
+      border-bottom: 1px solid var(--border);
+    }
+    .swiss-table tbody tr:last-child td { border-bottom: none; }
+    .swiss-table tbody tr:hover td { background: var(--surface-1); }
+
+    /* ── Typography ─────────────────────────────────── */
+    .type-display {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 0.95;
+      margin: 0;
+    }
+    .type-heading    { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+    .type-subheading { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.3; margin: 0; }
+    .type-body       { font-size: 16px; font-weight: 400; line-height: 1.6; margin: 0; }
+    .type-label      { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+    .type-caption    { font-size: 13px; color: var(--text-2); line-height: 1.5; margin: 0; }
+
+    /* ── Color swatches ─────────────────────────────── */
+    .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1px; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+    .swatch { padding: 0; }
+    .swatch-color { height: 80px; }
+    .swatch-info { padding: 12px; background: var(--surface-1); }
+    .swatch-name { font-size: 13px; font-weight: 700; color: var(--text-1); display: block; }
+    .swatch-hex  { font-size: 11px; font-weight: 400; color: var(--text-2); font-family: 'JetBrains Mono', monospace; display: block; margin-top: 2px; }
+
+    /* ── Divider ────────────────────────────────────── */
+    hr.swiss-rule { border: none; border-top: 1px solid var(--border); margin: 0; }
+    .divider-labeled { display: flex; align-items: center; gap: 16px; }
+    .divider-labeled hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+
+    /* ── Grid demo ──────────────────────────────────── */
+    .grid-cell {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      padding: 16px 0;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+    }
+    .grid-cell-accent { background: rgba(230,57,70,0.08); border-color: rgba(230,57,70,0.2); color: var(--red); }
+
+    /* ── Hero ───────────────────────────────────────── */
+    .hero {
+      padding: 120px 0 80px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-meta {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 24px;
+    }
+    .hero-title {
+      font-size: clamp(56px, 9vw, 112px);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 0.92;
+      margin: 0 0 32px;
+    }
+    .hero-sub {
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text-2);
+      max-width: 480px;
+      line-height: 1.5;
+      margin: 0 0 48px;
+    }
+
+    /* ── Theme toggle ───────────────────────────────── */
+    #theme-toggle {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 8px 12px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: color 120ms, border-color 120ms;
+    }
+    #theme-toggle:hover { color: var(--text-1); border-color: var(--text-2); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ──────────────────────────────────── -->
+  <header class="site-nav">
+    <div class="nav-left">
+      <span class="nav-logo">Swiss</span>
+      <a href="#typography"  class="nav-item active">Type</a>
+      <a href="#color"       class="nav-item">Color</a>
+      <a href="#buttons"     class="nav-item">Buttons</a>
+      <a href="#cards"       class="nav-item">Cards</a>
+      <a href="#forms"       class="nav-item">Forms</a>
+      <a href="#data"        class="nav-item">Data</a>
+      <a href="#layout"      class="nav-item">Layout</a>
+    </div>
+    <div class="nav-right">
+      <span class="badge badge-neutral">v0.1.0</span>
+      <button id="theme-toggle">Light</button>
+    </div>
+  </header>
+
+  <!-- ── Hero ────────────────────────────────────────── -->
+  <div class="container">
+    <div class="hero">
+      <div class="hero-meta">Swiss Design System — 2024</div>
+      <h1 class="hero-title">Grid.<br/>Type.<br/>Order.</h1>
+      <p class="hero-sub">
+        A dark-mode-first component library built on Swiss International Style principles — geometric precision, typographic hierarchy, and radical simplicity.
+      </p>
+      <div class="demo-row" style="margin:0">
+        <button class="btn btn-primary btn-lg">Get Started</button>
+        <button class="btn btn-ghost btn-lg">View Source</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Typography ──────────────────────────────────── -->
+  <section id="typography" class="section">
+    <div class="container">
+      <div class="section-label">01 — Typography</div>
+      <h2 class="section-title">Typographic Scale</h2>
+      <p class="section-desc">Inter variable font. Nine sizes, four weights. Uppercase tracking for labels.</p>
+
+      <div style="display:flex; flex-direction:column; gap:32px; margin-bottom:48px;">
+        <div>
+          <div class="type-label" style="margin-bottom:12px">Display / 96px / Black 900</div>
+          <p class="type-display">The Grid</p>
+        </div>
+        <hr class="swiss-rule">
+        <div>
+          <div class="type-label" style="margin-bottom:8px">Heading / 32px / Bold 700</div>
+          <p class="type-heading">Swiss International Style</p>
+        </div>
+        <hr class="swiss-rule">
+        <div>
+          <div class="type-label" style="margin-bottom:8px">Subheading / 20px / Medium 500</div>
+          <p class="type-subheading">Objectivity through geometric order and precise proportion</p>
+        </div>
+        <hr class="swiss-rule">
+        <div>
+          <div class="type-label" style="margin-bottom:8px">Body / 16px / Regular 400</div>
+          <p class="type-body">The Swiss Style emerged in the 1950s from Zürich and Basel, championed by designers who believed clarity and mathematical structure should govern visual communication. The grid became doctrine; ornamentation, heresy.</p>
+        </div>
+        <hr class="swiss-rule">
+        <div>
+          <div class="type-label" style="margin-bottom:8px">Label / 11px / Bold 700 / Tracked</div>
+          <span class="type-label">Category Label — Data Visualization — Q4 2024</span>
+        </div>
+        <hr class="swiss-rule">
+        <div>
+          <div class="type-label" style="margin-bottom:8px">Caption / 13px / Regular 400</div>
+          <p class="type-caption">Figure 1.2 — Proportional relationships within the modular grid system as defined by Josef Müller-Brockmann, 1961.</p>
+        </div>
+      </div>
+
+      <!-- Type size specimen -->
+      <div style="display:flex; flex-direction:column; gap:0; border: 1px solid var(--border); border-radius:2px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns: 100px 80px 80px 1fr; padding:8px 16px; background:var(--surface-1); border-bottom:1px solid var(--border);">
+          <span class="type-label">Name</span>
+          <span class="type-label">Size</span>
+          <span class="type-label">Weight</span>
+          <span class="type-label">Sample</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 100px 80px 80px 1fr; padding:12px 16px; border-bottom:1px solid var(--border); align-items:center;">
+          <span class="type-caption">display</span>
+          <span class="type-caption">96px</span>
+          <span class="type-caption">900</span>
+          <span style="font-size:40px; font-weight:900; letter-spacing:-0.04em; line-height:1">Swiss</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 100px 80px 80px 1fr; padding:12px 16px; border-bottom:1px solid var(--border); align-items:center;">
+          <span class="type-caption">heading</span>
+          <span class="type-caption">32px</span>
+          <span class="type-caption">700</span>
+          <span style="font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1">Swiss</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 100px 80px 80px 1fr; padding:12px 16px; border-bottom:1px solid var(--border); align-items:center;">
+          <span class="type-caption">subheading</span>
+          <span class="type-caption">20px</span>
+          <span class="type-caption">500</span>
+          <span style="font-size:20px; font-weight:500; letter-spacing:-0.01em; line-height:1">Swiss</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 100px 80px 80px 1fr; padding:12px 16px; border-bottom:1px solid var(--border); align-items:center;">
+          <span class="type-caption">body</span>
+          <span class="type-caption">16px</span>
+          <span class="type-caption">400</span>
+          <span style="font-size:16px; font-weight:400; line-height:1">Swiss</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 100px 80px 80px 1fr; padding:12px 16px; border-bottom:1px solid var(--border); align-items:center;">
+          <span class="type-caption">label</span>
+          <span class="type-caption">11px</span>
+          <span class="type-caption">700</span>
+          <span style="font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-2); line-height:1">Swiss Label</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 100px 80px 80px 1fr; padding:12px 16px; align-items:center;">
+          <span class="type-caption">caption</span>
+          <span class="type-caption">13px</span>
+          <span class="type-caption">400</span>
+          <span style="font-size:13px; font-weight:400; color:var(--text-2); line-height:1">Swiss caption text</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Color ────────────────────────────────────────── -->
+  <section id="color" class="section">
+    <div class="container">
+      <div class="section-label">02 — Color</div>
+      <h2 class="section-title">Design Tokens</h2>
+      <p class="section-desc">Nine tokens. Dark-mode first. Maximum three accents in use simultaneously.</p>
+
+      <div class="swatch-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#080808;"></div>
+          <div class="swatch-info"><span class="swatch-name">Background</span><span class="swatch-hex">#080808</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#111111;"></div>
+          <div class="swatch-info"><span class="swatch-name">Surface 1</span><span class="swatch-hex">#111111</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#1a1a1a;"></div>
+          <div class="swatch-info"><span class="swatch-name">Surface 2</span><span class="swatch-hex">#1a1a1a</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#272727;"></div>
+          <div class="swatch-info"><span class="swatch-name">Border</span><span class="swatch-hex">#272727</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f0ede8;"></div>
+          <div class="swatch-info"><span class="swatch-name">Text Primary</span><span class="swatch-hex">#f0ede8</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#6b6b6b;"></div>
+          <div class="swatch-info"><span class="swatch-name">Text Secondary</span><span class="swatch-hex">#6b6b6b</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#e63946;"></div>
+          <div class="swatch-info"><span class="swatch-name">Accent Red</span><span class="swatch-hex">#e63946</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f0c040;"></div>
+          <div class="swatch-info"><span class="swatch-name">Accent Yellow</span><span class="swatch-hex">#f0c040</span></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f5f5f0; border:1px solid #272727;"></div>
+          <div class="swatch-info"><span class="swatch-name">Accent White</span><span class="swatch-hex">#f5f5f0</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Buttons ──────────────────────────────────────── -->
+  <section id="buttons" class="section">
+    <div class="container">
+      <div class="section-label">03 — Buttons</div>
+      <h2 class="section-title">Button</h2>
+      <p class="section-desc">Flat, uppercase, sharp corners. Three variants × three sizes.</p>
+
+      <div class="demo-row">
+        <span class="demo-label">Primary</span>
+        <button class="btn btn-primary btn-sm">Action</button>
+        <button class="btn btn-primary btn-md">Action</button>
+        <button class="btn btn-primary btn-lg">Action</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-label">Ghost</span>
+        <button class="btn btn-ghost btn-sm">Action</button>
+        <button class="btn btn-ghost btn-md">Action</button>
+        <button class="btn btn-ghost btn-lg">Action</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-label">Danger</span>
+        <button class="btn btn-danger btn-sm">Delete</button>
+        <button class="btn btn-danger btn-md">Delete</button>
+        <button class="btn btn-danger btn-lg">Delete</button>
+      </div>
+      <div class="demo-row" style="margin-top:8px">
+        <span class="demo-label">Disabled</span>
+        <button class="btn btn-primary btn-md" disabled style="opacity:0.3; cursor:not-allowed">Disabled</button>
+        <button class="btn btn-ghost btn-md" disabled style="opacity:0.3; cursor:not-allowed">Disabled</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Badges ───────────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">04 — Badges</div>
+      <h2 class="section-title">Badge</h2>
+      <p class="section-desc">Uppercase, tracked, minimal. Status and category indicators.</p>
+
+      <div class="demo-row">
+        <span class="badge badge-neutral">Neutral</span>
+        <span class="badge badge-neutral">Draft</span>
+        <span class="badge badge-neutral">Archived</span>
+      </div>
+      <div class="demo-row">
+        <span class="badge badge-red">Critical</span>
+        <span class="badge badge-red">Error</span>
+        <span class="badge badge-red">Live</span>
+      </div>
+      <div class="demo-row">
+        <span class="badge badge-yellow">Warning</span>
+        <span class="badge badge-yellow">Beta</span>
+        <span class="badge badge-yellow">Pending</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Cards ────────────────────────────────────────── -->
+  <section id="cards" class="section">
+    <div class="container">
+      <div class="section-label">05 — Cards</div>
+      <h2 class="section-title">Card</h2>
+      <p class="section-desc">Sharp-edged panels. No shadows — borders and space create depth.</p>
+
+      <div class="swiss-grid" style="margin-bottom:24px">
+        <div style="grid-column:span 4">
+          <div class="card">
+            <div class="type-label" style="margin-bottom:12px">Default Card</div>
+            <h3 style="font-size:20px; font-weight:700; letter-spacing:-0.01em; margin:0 0 8px">Surface 1</h3>
+            <p class="type-caption">The standard card sits on surface-1 with a 1px border. Used for primary content areas and panels.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 4">
+          <div class="card card-elevated">
+            <div class="type-label" style="margin-bottom:12px">Elevated Card</div>
+            <h3 style="font-size:20px; font-weight:700; letter-spacing:-0.01em; margin:0 0 8px">Surface 2</h3>
+            <p class="type-caption">Elevated cards use surface-2 to create visual hierarchy without shadows or gradients.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 4">
+          <div class="card" style="padding:0; overflow:hidden;">
+            <div style="height:120px; background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-1) 100%); display:flex; align-items:center; justify-content:center; border-bottom:1px solid var(--border);">
+              <span style="font-size:48px; font-weight:900; letter-spacing:-0.05em; color:var(--text-2); opacity:0.4">IMG</span>
+            </div>
+            <div style="padding:20px">
+              <span class="badge badge-neutral" style="margin-bottom:12px">Article</span>
+              <h3 style="font-size:18px; font-weight:700; margin:8px 0; letter-spacing:-0.01em">Media Card</h3>
+              <p class="type-caption">Card with image area above content.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swiss-grid">
+        <div style="grid-column:span 6">
+          <div class="card card-accent-red">
+            <span class="badge badge-red" style="margin-bottom:12px">Critical</span>
+            <h3 style="font-size:18px; font-weight:700; margin:8px 0; letter-spacing:-0.01em">Red Accent Stripe</h3>
+            <p class="type-caption">A 3px left border signals importance or error state. Never use fill colors for this purpose.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 6">
+          <div class="card card-accent-yellow">
+            <span class="badge badge-yellow" style="margin-bottom:12px">Warning</span>
+            <h3 style="font-size:18px; font-weight:700; margin:8px 0; letter-spacing:-0.01em">Yellow Accent Stripe</h3>
+            <p class="type-caption">Yellow stripe for warnings and items requiring user attention before proceeding.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Forms ────────────────────────────────────────── -->
+  <section id="forms" class="section">
+    <div class="container">
+      <div class="section-label">06 — Forms</div>
+      <h2 class="section-title">Input / Select</h2>
+      <p class="section-desc">Minimal border-bottom default. Full-border outlined variant.</p>
+
+      <div class="swiss-grid">
+        <div style="grid-column:span 6; display:flex; flex-direction:column; gap:32px;">
+          <div class="input-group">
+            <label class="input-label">Default Input</label>
+            <input class="input" type="text" placeholder="Enter value…" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Outlined Input</label>
+            <input class="input input-outlined" type="text" placeholder="Enter value…" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Input with Error</label>
+            <input class="input input-outlined" type="email" placeholder="name@example.com" value="invalid" style="border-color:var(--red)" />
+            <span class="input-error">Enter a valid email address</span>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Disabled</label>
+            <input class="input input-outlined" type="text" placeholder="Not editable" disabled style="opacity:0.4; cursor:not-allowed" />
+          </div>
+        </div>
+        <div style="grid-column:span 6; display:flex; flex-direction:column; gap:32px;">
+          <div class="input-group">
+            <label class="input-label">Select</label>
+            <select class="select">
+              <option>Zürich</option>
+              <option>Basel</option>
+              <option>Bern</option>
+              <option>Geneva</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Full Form Example</label>
+            <div style="display:flex; flex-direction:column; gap:20px; padding:24px; background:var(--surface-1); border:1px solid var(--border); border-radius:2px;">
+              <div class="input-group" style="gap:6px">
+                <label class="input-label">Name</label>
+                <input class="input input-outlined" type="text" placeholder="Max Muster" />
+              </div>
+              <div class="input-group" style="gap:6px">
+                <label class="input-label">Email</label>
+                <input class="input input-outlined" type="email" placeholder="max@example.com" />
+              </div>
+              <div class="input-group" style="gap:6px">
+                <label class="input-label">Region</label>
+                <select class="select">
+                  <option>Select region…</option>
+                  <option>Zürich</option>
+                  <option>Basel</option>
+                </select>
+              </div>
+              <button class="btn btn-primary btn-md" style="align-self:flex-start">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Data: Table ──────────────────────────────────── -->
+  <section id="data" class="section">
+    <div class="container">
+      <div class="section-label">07 — Data</div>
+      <h2 class="section-title">Table</h2>
+      <p class="section-desc">Minimal horizontal rules only. Uppercase headers. No alternating rows.</p>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--border);">
+          <h3 style="font-size:16px; font-weight:700; margin:0; letter-spacing:-0.01em">Projects</h3>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span class="badge badge-neutral">24 total</span>
+            <button class="btn btn-primary btn-sm">New Project</button>
+          </div>
+        </div>
+        <div style="padding:0 24px 8px;">
+          <table class="swiss-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Team</th>
+                <th>Updated</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Brand Identity — Helvetia Bank</strong></td>
+                <td><span class="badge badge-red">Live</span></td>
+                <td><span class="type-caption">Studio Müller</span></td>
+                <td><span class="type-caption">Today</span></td>
+                <td><a href="#" style="font-size:13px; font-weight:700; color:var(--text-2)">→</a></td>
+              </tr>
+              <tr>
+                <td><strong>Annual Report 2024</strong></td>
+                <td><span class="badge badge-yellow">Review</span></td>
+                <td><span class="type-caption">Type Bureau AG</span></td>
+                <td><span class="type-caption">2 days ago</span></td>
+                <td><a href="#" style="font-size:13px; font-weight:700; color:var(--text-2)">→</a></td>
+              </tr>
+              <tr>
+                <td><strong>Wayfinding — Zürich HB</strong></td>
+                <td><span class="badge badge-neutral">Draft</span></td>
+                <td><span class="type-caption">Designbüro Frei</span></td>
+                <td><span class="type-caption">1 week ago</span></td>
+                <td><a href="#" style="font-size:13px; font-weight:700; color:var(--text-2)">→</a></td>
+              </tr>
+              <tr>
+                <td><strong>Exhibition Catalog — Kunsthaus</strong></td>
+                <td><span class="badge badge-neutral">Archived</span></td>
+                <td><span class="type-caption">Atelier Hofer</span></td>
+                <td><span class="type-caption">3 weeks ago</span></td>
+                <td><a href="#" style="font-size:13px; font-weight:700; color:var(--text-2)">→</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Dividers ──────────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">08 — Dividers</div>
+      <h2 class="section-title">Divider</h2>
+      <p class="section-desc">1px Swiss rule. Optional centered label.</p>
+
+      <div style="display:flex; flex-direction:column; gap:32px;">
+        <div>
+          <div class="type-label" style="margin-bottom:16px">Plain</div>
+          <hr class="swiss-rule" />
+        </div>
+        <div>
+          <div class="type-label" style="margin-bottom:16px">Labeled</div>
+          <div class="divider-labeled">
+            <hr style="flex:1; border:none; border-top:1px solid var(--border);" />
+            <span class="type-label">Section Break</span>
+            <hr style="flex:1; border:none; border-top:1px solid var(--border);" />
+          </div>
+        </div>
+        <div>
+          <div class="type-label" style="margin-bottom:16px">Vertical (in flex row)</div>
+          <div style="display:flex; align-items:center; gap:24px; height:40px;">
+            <span class="type-caption">January 2024</span>
+            <div style="width:1px; height:100%; background:var(--border);"></div>
+            <span class="type-caption">February 2024</span>
+            <div style="width:1px; height:100%; background:var(--border);"></div>
+            <span class="type-caption">March 2024</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Grid / Layout ────────────────────────────────── -->
+  <section id="layout" class="section">
+    <div class="container">
+      <div class="section-label">09 — Grid</div>
+      <h2 class="section-title">12-Column Grid</h2>
+      <p class="section-desc">Base unit: 4px. 12 columns, 24px gutters. Everything aligns.</p>
+
+      <!-- 12 equal cols -->
+      <div class="type-label" style="margin-bottom:12px">12 columns</div>
+      <div class="swiss-grid" style="margin-bottom:24px">
+        <div class="grid-cell">1</div>
+        <div class="grid-cell">2</div>
+        <div class="grid-cell">3</div>
+        <div class="grid-cell">4</div>
+        <div class="grid-cell">5</div>
+        <div class="grid-cell">6</div>
+        <div class="grid-cell">7</div>
+        <div class="grid-cell">8</div>
+        <div class="grid-cell">9</div>
+        <div class="grid-cell">10</div>
+        <div class="grid-cell">11</div>
+        <div class="grid-cell">12</div>
+      </div>
+
+      <!-- Asymmetric layout -->
+      <div class="type-label" style="margin-bottom:12px">Asymmetric — 8 + 4</div>
+      <div class="swiss-grid" style="margin-bottom:24px">
+        <div class="grid-cell grid-cell-accent" style="grid-column:span 8">span 8</div>
+        <div class="grid-cell" style="grid-column:span 4">span 4</div>
+      </div>
+
+      <!-- 4 + 4 + 4 -->
+      <div class="type-label" style="margin-bottom:12px">Three equal — 4 + 4 + 4</div>
+      <div class="swiss-grid" style="margin-bottom:24px">
+        <div class="grid-cell" style="grid-column:span 4">span 4</div>
+        <div class="grid-cell" style="grid-column:span 4">span 4</div>
+        <div class="grid-cell" style="grid-column:span 4">span 4</div>
+      </div>
+
+      <!-- Sidebar layout -->
+      <div class="type-label" style="margin-bottom:12px">Sidebar — 3 + 9</div>
+      <div class="swiss-grid" style="margin-bottom:24px">
+        <div class="grid-cell" style="grid-column:span 3">span 3</div>
+        <div class="grid-cell grid-cell-accent" style="grid-column:span 9">span 9</div>
+      </div>
+
+      <!-- Full width centered -->
+      <div class="type-label" style="margin-bottom:12px">Centered content — col 3 → span 8</div>
+      <div class="swiss-grid">
+        <div style="grid-column:3 / span 8">
+          <div class="grid-cell grid-cell-accent">col 3 / span 8</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Nav Variants ──────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">10 — Navigation</div>
+      <h2 class="section-title">Nav Patterns</h2>
+      <p class="section-desc">Bold horizontal nav with red accent underline on active state.</p>
+
+      <div style="display:flex; flex-direction:column; gap:24px;">
+        <div>
+          <div class="type-label" style="margin-bottom:12px">Full Nav</div>
+          <div style="border:1px solid var(--border); border-radius:2px; overflow:hidden;">
+            <div class="site-nav" style="position:relative; padding:0 20px;">
+              <div class="nav-left">
+                <span class="nav-logo" style="font-size:11px; padding:14px 16px 14px 0;">Swiss DS</span>
+                <a href="#" class="nav-item active">Overview</a>
+                <a href="#" class="nav-item">Components</a>
+                <a href="#" class="nav-item">Tokens</a>
+                <a href="#" class="nav-item">Guidelines</a>
+              </div>
+              <div class="nav-right">
+                <button class="btn btn-ghost btn-sm">Sign In</button>
+                <button class="btn btn-primary btn-sm">Get Access</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="type-label" style="margin-bottom:12px">Tab Nav</div>
+          <div style="border:1px solid var(--border); border-radius:2px; overflow:hidden;">
+            <div style="display:flex; border-bottom:1px solid var(--border);">
+              <a href="#" class="nav-item active">All</a>
+              <a href="#" class="nav-item">Active</a>
+              <a href="#" class="nav-item">Archived</a>
+              <a href="#" class="nav-item">Draft</a>
+            </div>
+            <div style="padding:24px; background:var(--surface-1);">
+              <p class="type-caption">Tab content area</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Design Rules ──────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+      <div class="section-label">11 — Principles</div>
+      <h2 class="section-title">Seven Rules</h2>
+      <p class="section-desc">The constraints that define the system.</p>
+
+      <div class="swiss-grid">
+        <div style="grid-column:span 4">
+          <div style="padding:24px 0; border-top:3px solid var(--red);">
+            <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:16px;">01</div>
+            <h3 style="font-size:16px; font-weight:700; margin:0 0 8px; letter-spacing:-0.01em;">No Gradients</h3>
+            <p class="type-caption">Flat color only. Gradients introduce visual noise that competes with typographic hierarchy.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 4">
+          <div style="padding:24px 0; border-top:3px solid var(--border);">
+            <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:16px;">02</div>
+            <h3 style="font-size:16px; font-weight:700; margin:0 0 8px; letter-spacing:-0.01em;">No Shadows</h3>
+            <p class="type-caption">Borders and whitespace create depth. Shadows are decorative — borders are structural.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 4">
+          <div style="padding:24px 0; border-top:3px solid var(--border);">
+            <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:16px;">03</div>
+            <h3 style="font-size:16px; font-weight:700; margin:0 0 8px; letter-spacing:-0.01em;">0–2px Radius</h3>
+            <p class="type-caption">Geometric precision. Rounded corners soften meaning; Swiss type is assertive.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 4">
+          <div style="padding:24px 0; border-top:3px solid var(--border);">
+            <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:16px;">04</div>
+            <h3 style="font-size:16px; font-weight:700; margin:0 0 8px; letter-spacing:-0.01em;">No Decorative Icons</h3>
+            <p class="type-caption">Icons must carry meaning. When in doubt, use words.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 4">
+          <div style="padding:24px 0; border-top:3px solid var(--border);">
+            <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:16px;">05</div>
+            <h3 style="font-size:16px; font-weight:700; margin:0 0 8px; letter-spacing:-0.01em;">Typography Leads</h3>
+            <p class="type-caption">Size and weight contrast communicates hierarchy before color does.</p>
+          </div>
+        </div>
+        <div style="grid-column:span 4">
+          <div style="padding:24px 0; border-top:3px solid var(--border);">
+            <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:16px;">06</div>
+            <h3 style="font-size:16px; font-weight:700; margin:0 0 8px; letter-spacing:-0.01em;">Grid Always</h3>
+            <p class="type-caption">Every element aligns to the 4px base grid. No arbitrary values.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────── -->
+  <footer style="border-top:1px solid var(--border); padding:48px 0;">
+    <div class="container">
+      <div class="swiss-grid" style="align-items:center;">
+        <div style="grid-column:span 6">
+          <div style="font-size:11px; font-weight:900; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-1); margin-bottom:8px;">Swiss Design System</div>
+          <p class="type-caption" style="margin:0">Grid-based. Type-first. Dark-mode forever.</p>
+        </div>
+        <div style="grid-column:span 6; display:flex; justify-content:flex-end; gap:24px; align-items:center;">
+          <span class="type-caption">v0.1.0</span>
+          <hr style="width:1px; height:20px; border:none; border-left:1px solid var(--border); margin:0;" />
+          <span class="type-caption">MIT License</span>
+          <hr style="width:1px; height:20px; border:none; border-left:1px solid var(--border); margin:0;" />
+          <span class="type-caption">2024</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const toggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+
+    toggle.addEventListener('click', () => {
+      const isDark = html.classList.contains('dark');
+      html.classList.toggle('dark', !isDark);
+      toggle.textContent = isDark ? 'Dark' : 'Light';
+    });
+
+    // Nav active state on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navItems = document.querySelectorAll('.nav-item[href^="#"]');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navItems.forEach(item => {
+            item.classList.toggle('active', item.getAttribute('href') === `#${entry.target.id}`);
+          });
+        }
+      });
+    }, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+  </script>
+
+</body>
+</html>
