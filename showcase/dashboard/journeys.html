@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journeys — Meridian CJM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Journey builder visualization */
+    .journey-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      flex: 1;
+    }
+    .stage-node {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 12px;
+      position: relative;
+    }
+    .stage-node.trigger { border-left: 3px solid var(--red); }
+    .stage-node.email   { border-left: 3px solid var(--text-2); }
+    .stage-node.wait    { border-left: 3px solid var(--border); background: var(--surface-1); }
+    .stage-node.branch  { border-left: 3px solid var(--yellow); }
+    .stage-node.convert { border-left: 3px solid var(--green); }
+    .stage-connector {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .stage-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 4px;
+    }
+    .stage-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 3px;
+    }
+    .stage-meta {
+      font-size: 10px;
+      color: var(--text-2);
+    }
+    .stage-count {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      color: var(--text-2);
+    }
+
+    .journey-flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0 8px;
+      padding: 20px 0;
+    }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--border);
+      font-size: 16px;
+      padding-top: 28px;
+    }
+
+    .journey-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color 150ms;
+    }
+    .journey-card:hover { border-color: var(--text-2); }
+    .journey-card.selected { border-color: var(--red); }
+    .journey-card.selected .journey-card-title { color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Meridian</div>
+      <div class="sidebar-logo-sub">Customer Journey</div>
+    </div>
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Overview
+      </a>
+      <a href="journeys.html" class="sidebar-item active">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h3m9 0h-3m-3-6v3m0 6v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Journeys
+      </a>
+      <a href="campaigns.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 10L5 6l3 3 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Campaigns
+      </a>
+      <a href="analytics.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="3" height="7" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="3" width="3" height="10" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="1" width="3" height="12" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Analytics
+      </a>
+      <a href="segments.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Segments
+      </a>
+    </nav>
+    <hr class="sidebar-divider" />
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a href="#" class="sidebar-item"><span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Settings</a>
+      <a href="#" class="sidebar-item"><span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Team</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">SC</div>
+        <div><div class="sidebar-user-name">Sophie Chen</div><div class="sidebar-user-role">Head of Growth</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Journeys
+        <span style="color:var(--text-2);font-weight:400;">/ All</span>
+      </div>
+      <div class="topbar-right">
+        <input class="search-input" type="search" placeholder="Search journeys…" />
+        <button class="btn btn-ghost btn-sm">Filter</button>
+        <button class="btn btn-primary btn-sm">+ New Journey</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Stats row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Journeys</div>
+          <div class="stat-value">47</div>
+          <div class="stat-delta">23 active, 12 draft, 12 archived</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Contacts in Flight</div>
+          <div class="stat-value">57,140</div>
+          <div class="stat-delta up">↑ 8.1% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Completion</div>
+          <div class="stat-value accent">58%</div>
+          <div class="stat-delta up">↑ 4pp vs last quarter</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Journey Length</div>
+          <div class="stat-value">14.2d</div>
+          <div class="stat-delta down">↓ 2.1 days vs last quarter</div>
+        </div>
+      </div>
+
+      <!-- Journey list + Detail pane -->
+      <div style="display:grid;grid-template-columns:380px 1fr;gap:16px;">
+
+        <!-- List -->
+        <div>
+          <!-- Tabs -->
+          <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;">
+            <button class="tab-btn active" style="padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid var(--red);margin-bottom:-1px;color:var(--text-1);cursor:pointer;font-family:var(--font);">Live (23)</button>
+            <button class="tab-btn" style="padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--text-2);cursor:pointer;font-family:var(--font);">Draft (12)</button>
+            <button class="tab-btn" style="padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--text-2);cursor:pointer;font-family:var(--font);">Paused (5)</button>
+            <button class="tab-btn" style="padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--text-2);cursor:pointer;font-family:var(--font);">Archived (7)</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="journey-card selected" onclick="selectJourney(this, 'enterprise')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div class="journey-card-title" style="font-size:13px;font-weight:700;letter-spacing:-0.01em;">Enterprise Onboarding</div>
+                <span class="badge badge-green">Live</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-2);">
+                <span>4,210 contacts</span>
+                <span>89% complete</span>
+                <span>21 days avg</span>
+              </div>
+              <div style="margin-top:10px;height:3px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;width:89%;background:var(--green);border-radius:1px;"></div>
+              </div>
+            </div>
+
+            <div class="journey-card" onclick="selectJourney(this, 'smb')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div class="journey-card-title" style="font-size:13px;font-weight:700;letter-spacing:-0.01em;">SMB Trial → Paid</div>
+                <span class="badge badge-green">Live</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-2);">
+                <span>12,840 contacts</span>
+                <span>74% complete</span>
+                <span>14 days avg</span>
+              </div>
+              <div style="margin-top:10px;height:3px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;width:74%;background:var(--green);border-radius:1px;"></div>
+              </div>
+            </div>
+
+            <div class="journey-card" onclick="selectJourney(this, 'winback')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div class="journey-card-title" style="font-size:13px;font-weight:700;letter-spacing:-0.01em;">Win-Back Q1</div>
+                <span class="badge badge-yellow">Review</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-2);">
+                <span>8,300 contacts</span>
+                <span>61% complete</span>
+                <span>28 days avg</span>
+              </div>
+              <div style="margin-top:10px;height:3px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;width:61%;background:var(--yellow);border-radius:1px;"></div>
+              </div>
+            </div>
+
+            <div class="journey-card" onclick="selectJourney(this, 'nurture')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div class="journey-card-title" style="font-size:13px;font-weight:700;letter-spacing:-0.01em;">Free Trial Nurture</div>
+                <span class="badge badge-green">Live</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-2);">
+                <span>22,190 contacts</span>
+                <span>52% complete</span>
+                <span>10 days avg</span>
+              </div>
+              <div style="margin-top:10px;height:3px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;width:52%;background:var(--red);border-radius:1px;"></div>
+              </div>
+            </div>
+
+            <div class="journey-card" onclick="selectJourney(this, 'upsell')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div class="journey-card-title" style="font-size:13px;font-weight:700;letter-spacing:-0.01em;">Upsell — Pro Plan</div>
+                <span class="badge badge-green">Live</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-2);">
+                <span>6,420 contacts</span>
+                <span>47% complete</span>
+                <span>7 days avg</span>
+              </div>
+              <div style="margin-top:10px;height:3px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;width:47%;background:var(--green);border-radius:1px;"></div>
+              </div>
+            </div>
+
+            <div class="journey-card" onclick="selectJourney(this, 'churn')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div class="journey-card-title" style="font-size:13px;font-weight:700;letter-spacing:-0.01em;">Churn Prevention</div>
+                <span class="badge badge-yellow">Paused</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-2);">
+                <span>3,180 contacts</span>
+                <span>38% complete</span>
+                <span>30 days avg</span>
+              </div>
+              <div style="margin-top:10px;height:3px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;width:38%;background:var(--yellow);border-radius:1px;"></div>
+              </div>
+            </div>
+
+            <div class="journey-card" onclick="selectJourney(this, 'mql')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div class="journey-card-title" style="font-size:13px;font-weight:700;letter-spacing:-0.01em;">New MQL Nurture</div>
+                <span class="badge badge-green">Live</span>
+              </div>
+              <div style="display:flex;gap:16px;font-size:11px;color:var(--text-2);">
+                <span>18,400 contacts</span>
+                <span>29% complete</span>
+                <span>18 days avg</span>
+              </div>
+              <div style="margin-top:10px;height:3px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;width:29%;background:var(--red);border-radius:1px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail pane -->
+        <div id="detail-pane">
+          <div class="panel">
+            <div class="panel-header" style="justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <h2 class="panel-title">Enterprise Onboarding</h2>
+                <span class="badge badge-green">Live</span>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-ghost btn-sm">Clone</button>
+                <button class="btn btn-ghost btn-sm">Edit</button>
+                <button class="btn btn-primary btn-sm">View Report</button>
+              </div>
+            </div>
+
+            <!-- Journey flow visualization -->
+            <div class="panel-body">
+              <div class="section-heading" style="margin-bottom:12px;">
+                <h3 class="section-title">Journey Flow</h3>
+                <span style="font-size:11px;color:var(--text-2);">6 steps · 21 day avg</span>
+              </div>
+
+              <!-- Flow diagram -->
+              <div style="overflow-x:auto;padding-bottom:8px;">
+                <div style="display:flex;align-items:flex-start;gap:0;min-width:700px;">
+                  <div class="journey-stage">
+                    <div class="stage-node trigger">
+                      <div class="stage-label">Trigger</div>
+                      <div class="stage-title">Account Created</div>
+                      <div class="stage-meta">Enterprise plan signup</div>
+                      <div class="stage-count">4,210</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                  </div>
+                  <div class="flow-arrow">→</div>
+                  <div class="journey-stage">
+                    <div class="stage-node email">
+                      <div class="stage-label">Email</div>
+                      <div class="stage-title">Welcome + Setup Guide</div>
+                      <div class="stage-meta">Open: 68% · Click: 44%</div>
+                      <div class="stage-count">4,190</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                  </div>
+                  <div class="flow-arrow">→</div>
+                  <div class="journey-stage">
+                    <div class="stage-node wait">
+                      <div class="stage-label">Wait</div>
+                      <div class="stage-title">3 Days</div>
+                      <div class="stage-meta">Check: workspace setup</div>
+                      <div class="stage-count" style="color:var(--text-2);">—</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                  </div>
+                  <div class="flow-arrow">→</div>
+                  <div class="journey-stage">
+                    <div class="stage-node branch">
+                      <div class="stage-label">Branch</div>
+                      <div class="stage-title">Setup Complete?</div>
+                      <div class="stage-meta">Yes: 81% · No: 19%</div>
+                      <div class="stage-count">4,100</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                  </div>
+                  <div class="flow-arrow">→</div>
+                  <div class="journey-stage">
+                    <div class="stage-node email">
+                      <div class="stage-label">Email</div>
+                      <div class="stage-title">CSM Introduction</div>
+                      <div class="stage-meta">Open: 72% · Reply: 31%</div>
+                      <div class="stage-count">3,921</div>
+                    </div>
+                    <div class="stage-connector"></div>
+                  </div>
+                  <div class="flow-arrow">→</div>
+                  <div class="journey-stage">
+                    <div class="stage-node convert">
+                      <div class="stage-label">Goal</div>
+                      <div class="stage-title">First Value Achieved</div>
+                      <div class="stage-meta">Report run or API call</div>
+                      <div class="stage-count" style="color:var(--green);">3,747</div>
+                    </div>
+                    <div class="stage-connector" style="background:transparent;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin:20px 0;" />
+
+              <!-- KPIs for this journey -->
+              <div class="grid-4" style="margin-bottom:20px;">
+                <div style="text-align:center;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                  <div style="font-size:24px;font-weight:900;letter-spacing:-0.03em;color:var(--green);margin-bottom:4px;">89%</div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);">Completion</div>
+                </div>
+                <div style="text-align:center;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                  <div style="font-size:24px;font-weight:900;letter-spacing:-0.03em;margin-bottom:4px;">68%</div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);">Email Open</div>
+                </div>
+                <div style="text-align:center;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                  <div style="font-size:24px;font-weight:900;letter-spacing:-0.03em;color:var(--red);margin-bottom:4px;">$200</div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);">Avg. CAC</div>
+                </div>
+                <div style="text-align:center;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                  <div style="font-size:24px;font-weight:900;letter-spacing:-0.03em;color:var(--green);margin-bottom:4px;">$842K</div>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);">Revenue Attr.</div>
+                </div>
+              </div>
+
+              <!-- Drop-off analysis -->
+              <div class="section-heading">
+                <h3 class="section-title">Drop-off Analysis</h3>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Step</th>
+                    <th>Entered</th>
+                    <th>Completed</th>
+                    <th>Drop-off</th>
+                    <th>Top Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Welcome Email</td>
+                    <td>4,210</td>
+                    <td>4,190</td>
+                    <td><span style="color:var(--green);font-weight:700;">0.5%</span></td>
+                    <td style="color:var(--text-2);">Unsubscribe</td>
+                  </tr>
+                  <tr>
+                    <td>3-Day Wait</td>
+                    <td>4,190</td>
+                    <td>4,100</td>
+                    <td><span style="color:var(--yellow);font-weight:700;">2.1%</span></td>
+                    <td style="color:var(--text-2);">Account inactive</td>
+                  </tr>
+                  <tr>
+                    <td>Setup Branch</td>
+                    <td>4,100</td>
+                    <td>3,921</td>
+                    <td><span style="color:var(--yellow);font-weight:700;">4.4%</span></td>
+                    <td style="color:var(--text-2);">No workspace created</td>
+                  </tr>
+                  <tr>
+                    <td>CSM Introduction</td>
+                    <td>3,921</td>
+                    <td>3,747</td>
+                    <td><span style="color:var(--red);font-weight:700;">4.4%</span></td>
+                    <td style="color:var(--text-2);">No meeting booked</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+
+    function selectJourney(el, id) {
+      document.querySelectorAll('.journey-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  </script>
+</body>
+</html>

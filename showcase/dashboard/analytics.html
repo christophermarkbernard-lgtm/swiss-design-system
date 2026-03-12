@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — Meridian CJM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Time series bar chart */
+    .ts-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 120px;
+      padding-bottom: 28px;
+      position: relative;
+    }
+    .ts-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+    .ts-bar {
+      width: 100%;
+      background: var(--red);
+      border-radius: 1px 1px 0 0;
+      min-height: 2px;
+      opacity: 0.85;
+      transition: opacity 120ms;
+      cursor: pointer;
+    }
+    .ts-bar:hover { opacity: 1; }
+    .ts-bar.secondary { background: var(--border); opacity: 1; }
+    .ts-bar.yellow { background: var(--yellow); }
+    .ts-label {
+      font-size: 9px;
+      color: var(--text-2);
+      white-space: nowrap;
+      position: absolute;
+      bottom: 0;
+      transform: translateX(-50%);
+    }
+    .ts-grid-line {
+      position: absolute;
+      left: 0; right: 0;
+      border-top: 1px solid var(--border);
+      opacity: 0.5;
+    }
+
+    /* Cohort table */
+    .cohort-cell {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px;
+      border: 1px solid var(--border);
+      min-width: 52px;
+    }
+
+    /* Funnel step */
+    .funnel-step-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .funnel-step-name {
+      font-size: 12px;
+      font-weight: 700;
+      width: 140px;
+      flex-shrink: 0;
+    }
+    .funnel-step-bar-wrap {
+      flex: 1;
+      height: 32px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .funnel-step-fill {
+      height: 100%;
+      background: var(--red);
+      border-radius: 2px 0 0 2px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      white-space: nowrap;
+    }
+    .funnel-step-count {
+      font-size: 12px;
+      font-weight: 700;
+      width: 70px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .funnel-step-pct {
+      font-size: 11px;
+      color: var(--text-2);
+      width: 40px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .funnel-drop {
+      font-size: 10px;
+      color: var(--red);
+      font-weight: 700;
+      text-align: right;
+      width: 60px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Meridian</div>
+      <div class="sidebar-logo-sub">Customer Journey</div>
+    </div>
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Overview
+      </a>
+      <a href="journeys.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h3m9 0h-3m-3-6v3m0 6v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Journeys
+      </a>
+      <a href="campaigns.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 10L5 6l3 3 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Campaigns
+      </a>
+      <a href="analytics.html" class="sidebar-item active">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="3" height="7" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="3" width="3" height="10" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="1" width="3" height="12" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Analytics
+      </a>
+      <a href="segments.html" class="sidebar-item">
+        <span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        Segments
+      </a>
+    </nav>
+    <hr class="sidebar-divider" />
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a href="#" class="sidebar-item"><span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Settings</a>
+      <a href="#" class="sidebar-item"><span class="sidebar-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>Team</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">SC</div>
+        <div><div class="sidebar-user-name">Sophie Chen</div><div class="sidebar-user-role">Head of Growth</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Analytics</div>
+      <div class="topbar-right">
+        <div style="display:flex;border:1px solid var(--border);border-radius:2px;overflow:hidden;">
+          <button style="padding:6px 12px;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:var(--red);color:#fff;border:none;cursor:pointer;">7D</button>
+          <button style="padding:6px 12px;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:none;color:var(--text-2);border:none;border-left:1px solid var(--border);cursor:pointer;">30D</button>
+          <button style="padding:6px 12px;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:none;color:var(--text-2);border:none;border-left:1px solid var(--border);cursor:pointer;">90D</button>
+          <button style="padding:6px 12px;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:none;color:var(--text-2);border:none;border-left:1px solid var(--border);cursor:pointer;">YTD</button>
+        </div>
+        <button class="btn btn-ghost btn-sm">Export</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPIs -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Contacts Processed</div>
+          <div class="stat-value">128,432</div>
+          <div class="stat-delta up">↑ 12.4% vs prior period</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Time to Convert</div>
+          <div class="stat-value">14.2d</div>
+          <div class="stat-delta up">↓ 2.1 days (better)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Customer Lifetime Value</div>
+          <div class="stat-value accent">$8,400</div>
+          <div class="stat-delta up">↑ $420 vs prior period</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cost per Acquisition</div>
+          <div class="stat-value">$186</div>
+          <div class="stat-delta up">↓ $22 vs prior period</div>
+        </div>
+      </div>
+
+      <!-- Time series + Funnel -->
+      <div class="grid-2-1" style="margin-bottom:24px;">
+
+        <!-- Time series chart -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Contacts Entering Journeys — Daily</h2>
+            <div style="display:flex;gap:12px;font-size:11px;font-weight:700;align-items:center;">
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:var(--red);display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">This Period</span></span>
+              <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:3px;background:var(--border);display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Prior Period</span></span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <!-- Bar chart -->
+            <div style="position:relative;height:148px;display:flex;align-items:flex-end;gap:3px;padding-bottom:28px;">
+              <!-- Y-axis grid -->
+              <div class="ts-grid-line" style="bottom:28px;"></div>
+              <div class="ts-grid-line" style="bottom:67px;"></div>
+              <div class="ts-grid-line" style="bottom:108px;"></div>
+
+              <!-- Bars — prior period (behind, grey) -->
+              <!-- Bars — current period (red) -->
+              <!-- Day labels -->
+              <!-- Using a flex layout with stacked bars via JS-free approach -->
+              <script>
+              // Data will be rendered via inline style in the bars below
+              </script>
+
+              <!-- 14 days of bars, pairs: prior(grey) + current(red) -->
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:52px;" title="Prior: 3,100"></div><div style="position:absolute;bottom:0;" class="ts-label" style="left:calc(100%/28 * 1)">Feb 26</div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:68px;" title="3,980"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:58px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:74px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:61px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:80px;"></div><div style="position:absolute;bottom:0;" class="ts-label">Mar 1</div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:44px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:55px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:60px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:78px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:65px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:88px;"></div><div style="position:absolute;bottom:0;" class="ts-label">Mar 5</div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:48px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:62px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:70px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:92px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:72px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:98px;"></div><div style="position:absolute;bottom:0;" class="ts-label">Mar 9</div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:68px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:104px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:75px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:110px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar secondary" style="height:80px;"></div></div>
+              <div class="ts-bar-wrap"><div class="ts-bar" style="height:118px;"></div><div style="position:absolute;bottom:0;" class="ts-label">Today</div></div>
+            </div>
+
+            <hr style="margin:16px 0;" />
+
+            <!-- Summary stats below chart -->
+            <div style="display:flex;gap:32px;">
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Total Enters</div>
+                <div style="font-size:20px;font-weight:900;letter-spacing:-0.02em;">128,432</div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Daily Avg</div>
+                <div style="font-size:20px;font-weight:900;letter-spacing:-0.02em;">4,277</div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Peak Day</div>
+                <div style="font-size:20px;font-weight:900;letter-spacing:-0.02em;">6,840</div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">vs Prior Period</div>
+                <div style="font-size:20px;font-weight:900;letter-spacing:-0.02em;color:var(--green);">+12.4%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversion funnel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Full Funnel</h2>
+          </div>
+          <div class="panel-body">
+            <div>
+              <div class="funnel-step-row">
+                <div class="funnel-step-name">Visitors</div>
+                <div class="funnel-step-bar-wrap">
+                  <div class="funnel-step-fill" style="width:100%;background:rgba(230,57,70,0.15);color:var(--red);">100%</div>
+                </div>
+                <div class="funnel-step-count">284,190</div>
+                <div class="funnel-drop"></div>
+              </div>
+              <div style="padding:4px 0 4px 156px;font-size:10px;color:var(--border);">↓ 85.0% drop-off</div>
+
+              <div class="funnel-step-row">
+                <div class="funnel-step-name">Leads</div>
+                <div class="funnel-step-bar-wrap">
+                  <div class="funnel-step-fill" style="width:15%;">15%</div>
+                </div>
+                <div class="funnel-step-count">42,628</div>
+                <div class="funnel-drop"></div>
+              </div>
+              <div style="padding:4px 0 4px 156px;font-size:10px;color:var(--border);">↓ 55.5% drop-off</div>
+
+              <div class="funnel-step-row">
+                <div class="funnel-step-name">MQLs</div>
+                <div class="funnel-step-bar-wrap">
+                  <div class="funnel-step-fill" style="width:6.7%;">6.7%</div>
+                </div>
+                <div class="funnel-step-count">18,940</div>
+                <div class="funnel-drop"></div>
+              </div>
+              <div style="padding:4px 0 4px 156px;font-size:10px;color:var(--border);">↓ 66.1% drop-off</div>
+
+              <div class="funnel-step-row">
+                <div class="funnel-step-name">SQLs</div>
+                <div class="funnel-step-bar-wrap">
+                  <div class="funnel-step-fill" style="width:2.3%;">2.3%</div>
+                </div>
+                <div class="funnel-step-count">6,410</div>
+                <div class="funnel-drop"></div>
+              </div>
+              <div style="padding:4px 0 4px 156px;font-size:10px;color:var(--border);">↓ 40.4% drop-off</div>
+
+              <div class="funnel-step-row">
+                <div class="funnel-step-name">Trial Started</div>
+                <div class="funnel-step-bar-wrap">
+                  <div class="funnel-step-fill" style="width:1.35%;">1.4%</div>
+                </div>
+                <div class="funnel-step-count">3,820</div>
+                <div class="funnel-drop"></div>
+              </div>
+              <div style="padding:4px 0 4px 156px;font-size:10px;color:var(--border);">↓ 17.2% drop-off</div>
+
+              <div class="funnel-step-row">
+                <div class="funnel-step-name">Converted</div>
+                <div class="funnel-step-bar-wrap">
+                  <div class="funnel-step-fill" style="width:0.8%;background:var(--red);">—</div>
+                </div>
+                <div class="funnel-step-count" style="color:var(--green);font-weight:900;">3,163</div>
+                <div class="funnel-drop" style="color:var(--green);">3.8%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cohort retention table -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-header">
+          <h2 class="panel-title">Cohort Retention — Monthly</h2>
+          <span style="font-size:11px;color:var(--text-2);">% of cohort retained at week N</span>
+        </div>
+        <div class="panel-body" style="overflow-x:auto;">
+          <table style="border-collapse:collapse;min-width:700px;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:8px 16px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);">Cohort</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Size</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Wk 1</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Wk 2</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Wk 3</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Wk 4</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Wk 6</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Wk 8</th>
+                <th style="padding:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);text-align:center;">Wk 12</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:10px 16px;font-size:12px;font-weight:700;">Oct 2023</td>
+                <td class="cohort-cell" style="color:var(--text-2);">3,841</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.55);color:#fff;">100%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.44);color:#fff;">84%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.36);color:var(--text-1);">72%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.28);color:var(--text-1);">61%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.22);color:var(--text-1);">54%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.18);color:var(--text-1);">48%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.14);color:var(--text-1);">42%</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:10px 16px;font-size:12px;font-weight:700;">Nov 2023</td>
+                <td class="cohort-cell" style="color:var(--text-2);">4,120</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.55);color:#fff;">100%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.46);color:#fff;">86%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.38);color:var(--text-1);">74%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.3);color:var(--text-1);">63%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.24);color:var(--text-1);">57%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.2);color:var(--text-1);">51%</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:10px 16px;font-size:12px;font-weight:700;">Dec 2023</td>
+                <td class="cohort-cell" style="color:var(--text-2);">3,620</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.55);color:#fff;">100%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.43);color:#fff;">82%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.34);color:var(--text-1);">69%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.27);color:var(--text-1);">58%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.21);color:var(--text-1);">52%</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:10px 16px;font-size:12px;font-weight:700;">Jan 2024</td>
+                <td class="cohort-cell" style="color:var(--text-2);">4,830</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.55);color:#fff;">100%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.48);color:#fff;">88%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.40);color:var(--text-1);">76%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.32);color:var(--text-1);">66%</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:10px 16px;font-size:12px;font-weight:700;">Feb 2024</td>
+                <td class="cohort-cell" style="color:var(--text-2);">5,210</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.55);color:#fff;">100%</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.49);color:#fff;">90%</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 16px;font-size:12px;font-weight:700;">Mar 2024</td>
+                <td class="cohort-cell" style="color:var(--text-2);">3,163</td>
+                <td class="cohort-cell" style="background:rgba(230,57,70,0.55);color:#fff;">100%</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+                <td class="cohort-cell" style="color:var(--text-2);">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LTV / CAC table by segment -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">LTV / CAC by Segment</h2>
+          <span style="font-size:11px;color:var(--text-2);">Higher LTV:CAC ratio = more efficient growth</span>
+        </div>
+        <div class="panel-body-flush">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Segment</th>
+                <th>Contacts</th>
+                <th>Avg LTV</th>
+                <th>Avg CAC</th>
+                <th>LTV:CAC</th>
+                <th>Payback Period</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="fw-700">Enterprise</span></td>
+                <td>4,210</td>
+                <td style="font-weight:700;color:var(--green);">$42,000</td>
+                <td>$1,200</td>
+                <td><span style="font-size:16px;font-weight:900;color:var(--green);">35:1</span></td>
+                <td>4.8 mo</td>
+                <td style="color:var(--green);font-weight:700;">↑ improving</td>
+              </tr>
+              <tr>
+                <td><span class="fw-700">SMB</span></td>
+                <td>18,420</td>
+                <td style="font-weight:700;color:var(--text-1);">$8,400</td>
+                <td>$186</td>
+                <td><span style="font-size:16px;font-weight:900;">45:1</span></td>
+                <td>2.2 mo</td>
+                <td style="color:var(--green);font-weight:700;">↑ improving</td>
+              </tr>
+              <tr>
+                <td><span class="fw-700">Mid-Market</span></td>
+                <td>9,840</td>
+                <td style="font-weight:700;color:var(--text-1);">$18,200</td>
+                <td>$480</td>
+                <td><span style="font-size:16px;font-weight:900;">38:1</span></td>
+                <td>3.4 mo</td>
+                <td style="color:var(--text-2);font-weight:700;">→ stable</td>
+              </tr>
+              <tr>
+                <td><span class="fw-700">Startup</span></td>
+                <td>22,140</td>
+                <td style="font-weight:700;color:var(--yellow);">$3,200</td>
+                <td>$94</td>
+                <td><span style="font-size:16px;font-weight:900;color:var(--yellow);">34:1</span></td>
+                <td>1.8 mo</td>
+                <td style="color:var(--yellow);font-weight:700;">↓ watch</td>
+              </tr>
+              <tr>
+                <td><span class="fw-700">Churned / Win-Back</span></td>
+                <td>8,300</td>
+                <td style="font-weight:700;color:var(--text-1);">$6,100</td>
+                <td>$220</td>
+                <td><span style="font-size:16px;font-weight:900;">28:1</span></td>
+                <td>3.1 mo</td>
+                <td style="color:var(--red);font-weight:700;">↓ declining</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examples — Swiss Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #080808;
+      --surface-1: #111111;
+      --surface-2: #1a1a1a;
+      --border:    #272727;
+      --text-1:    #f0ede8;
+      --text-2:    #6b6b6b;
+      --red:       #e63946;
+      --yellow:    #f0c040;
+      --font:      'Inter', system-ui, sans-serif;
+    }
+    html:not(.dark) {
+      --bg:        #f5f5f0;
+      --surface-1: #ffffff;
+      --surface-2: #f0ede8;
+      --border:    #ddd9d4;
+      --text-1:    #111111;
+      --text-2:    #6b6b6b;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      transition: background 200ms, color 200ms;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* Nav */
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .nav-left { display: flex; align-items: center; }
+    .nav-logo {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-1);
+      padding: 16px 20px 16px 0;
+      margin-right: 8px;
+      border-right: 1px solid var(--border);
+    }
+    .nav-item {
+      padding: 18px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 120ms, border-color 120ms;
+    }
+    .nav-item:hover { color: var(--text-1); }
+    .nav-item.active { color: var(--text-1); border-bottom-color: var(--red); }
+
+    /* Layout */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+    .hero { padding: 100px 0 80px; border-bottom: 1px solid var(--border); }
+    .section { padding: 80px 0; }
+
+    /* Type */
+    .label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-2);
+    }
+
+    /* Example card */
+    .example-card {
+      display: block;
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      transition: border-color 200ms;
+    }
+    .example-card:hover { border-color: var(--text-2); }
+    .example-card:hover .card-arrow { color: var(--text-1); }
+
+    .card-preview {
+      height: 280px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Mini dashboard preview */
+    .preview-topbar {
+      height: 36px;
+      background: var(--surface-1);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .preview-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    .preview-dot.red   { background: var(--red); }
+    .preview-dot.yellow { background: var(--yellow); }
+    .preview-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .preview-sidebar {
+      width: 56px;
+      background: var(--surface-1);
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+      padding: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .preview-sidebar-item {
+      height: 6px;
+      margin: 4px 8px;
+      background: var(--border);
+      border-radius: 1px;
+    }
+    .preview-sidebar-item.active {
+      background: var(--red);
+      width: 60%;
+    }
+    .preview-main {
+      flex: 1;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .preview-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .preview-stat {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 8px;
+    }
+    .preview-stat-num {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .preview-stat-lbl {
+      font-size: 6px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+    }
+    .preview-row {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+    .preview-panel {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      flex: 1;
+      padding: 8px;
+      overflow: hidden;
+    }
+    .preview-panel-title {
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .preview-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .preview-bar-label {
+      font-size: 6px;
+      color: var(--text-2);
+      width: 28px;
+      flex-shrink: 0;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .preview-bar-track {
+      flex: 1;
+      height: 4px;
+      background: var(--surface-2);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .preview-bar-fill {
+      height: 100%;
+      background: var(--red);
+      border-radius: 1px;
+    }
+    .preview-table-row {
+      display: flex;
+      gap: 4px;
+      padding: 3px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+    }
+    .preview-table-row:last-child { border-bottom: none; }
+    .preview-table-cell {
+      font-size: 6px;
+      color: var(--text-2);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .preview-badge {
+      font-size: 5px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 1px 4px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+    .preview-badge.red { background: rgba(230,57,70,0.15); color: var(--red); }
+    .preview-badge.yellow { background: rgba(240,192,64,0.15); color: var(--yellow); }
+    .preview-badge.neutral { background: var(--surface-2); color: var(--text-2); }
+
+    .card-meta {
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0 0 6px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-2);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .card-arrow {
+      font-size: 24px;
+      font-weight: 300;
+      color: var(--text-2);
+      transition: color 120ms;
+      flex-shrink: 0;
+      margin-left: 16px;
+      margin-top: 2px;
+    }
+    .card-tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 1px;
+    }
+
+    /* Theme toggle */
+    .btn-toggle {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 8px 12px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: color 120ms, border-color 120ms;
+    }
+    .btn-toggle:hover { color: var(--text-1); border-color: var(--text-2); }
+
+    /* Coming soon placeholder */
+    .example-card.coming-soon {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .example-card.coming-soon:hover { border-color: var(--border); }
+    .coming-label {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 1px;
+      background: var(--surface-1);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo">Swiss DS</a>
+      <a href="index.html" class="nav-item">Components</a>
+      <a href="examples.html" class="nav-item active">Examples</a>
+    </div>
+    <button class="btn-toggle" id="theme-toggle">Light</button>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <div class="label" style="margin-bottom:20px">Examples</div>
+      <h1 style="font-size:clamp(40px,6vw,80px); font-weight:900; letter-spacing:-0.05em; line-height:0.95; margin:0 0 24px;">
+        Built with<br/>Swiss DS
+      </h1>
+      <p style="font-size:18px; color:var(--text-2); margin:0; max-width:480px; line-height:1.6;">
+        Full-scale interfaces built using the design system. Grid-bound, type-first, zero decoration.
+      </p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="label" style="margin-bottom:32px">01 — Dashboards</div>
+
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+
+        <!-- Digital Marketing Dashboard -->
+        <a href="dashboard/index.html" class="example-card" style="grid-column:span 2;">
+          <div class="card-preview">
+            <!-- Mini preview rendering -->
+            <div class="preview-topbar">
+              <div class="preview-dot red"></div>
+              <div class="preview-dot yellow"></div>
+              <div class="preview-dot"></div>
+              <div style="margin-left:8px; font-size:7px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-2);">Meridian — Customer Journey Management</div>
+            </div>
+            <div class="preview-body">
+              <div class="preview-sidebar">
+                <div class="preview-sidebar-item active"></div>
+                <div class="preview-sidebar-item"></div>
+                <div class="preview-sidebar-item"></div>
+                <div class="preview-sidebar-item"></div>
+                <div class="preview-sidebar-item"></div>
+              </div>
+              <div class="preview-main">
+                <div class="preview-stats">
+                  <div class="preview-stat">
+                    <div class="preview-stat-num">47</div>
+                    <div class="preview-stat-lbl">Journeys</div>
+                  </div>
+                  <div class="preview-stat">
+                    <div class="preview-stat-num" style="color:var(--red)">3.8%</div>
+                    <div class="preview-stat-lbl">Conversion</div>
+                  </div>
+                  <div class="preview-stat">
+                    <div class="preview-stat-num">128K</div>
+                    <div class="preview-stat-lbl">Contacts</div>
+                  </div>
+                  <div class="preview-stat">
+                    <div class="preview-stat-num">$2.4M</div>
+                    <div class="preview-stat-lbl">MRR</div>
+                  </div>
+                </div>
+                <div class="preview-row">
+                  <div class="preview-panel" style="flex:1.5">
+                    <div class="preview-panel-title">Journey Performance</div>
+                    <div class="preview-bar-row"><div class="preview-bar-label">Enterprise</div><div class="preview-bar-track"><div class="preview-bar-fill" style="width:89%"></div></div></div>
+                    <div class="preview-bar-row"><div class="preview-bar-label">Onboard</div><div class="preview-bar-track"><div class="preview-bar-fill" style="width:74%"></div></div></div>
+                    <div class="preview-bar-row"><div class="preview-bar-label">Winback</div><div class="preview-bar-track"><div class="preview-bar-fill" style="width:61%; background:var(--yellow)"></div></div></div>
+                    <div class="preview-bar-row"><div class="preview-bar-label">Trial</div><div class="preview-bar-track"><div class="preview-bar-fill" style="width:52%"></div></div></div>
+                    <div class="preview-bar-row"><div class="preview-bar-label">Nurture</div><div class="preview-bar-track"><div class="preview-bar-fill" style="width:38%"></div></div></div>
+                  </div>
+                  <div class="preview-panel">
+                    <div class="preview-panel-title">Active Campaigns</div>
+                    <div class="preview-table-row">
+                      <div class="preview-table-cell">Q1 Launch</div>
+                      <div class="preview-badge red">Live</div>
+                    </div>
+                    <div class="preview-table-row">
+                      <div class="preview-table-cell">Re-engage</div>
+                      <div class="preview-badge yellow">Paused</div>
+                    </div>
+                    <div class="preview-table-row">
+                      <div class="preview-table-cell">SMB Trial</div>
+                      <div class="preview-badge red">Live</div>
+                    </div>
+                    <div class="preview-table-row">
+                      <div class="preview-table-cell">Upsell</div>
+                      <div class="preview-badge neutral">Draft</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-meta">
+            <div>
+              <h2 class="card-title">Digital Marketing Dashboard</h2>
+              <p class="card-desc">Customer journey management, campaign analytics, audience segmentation, and funnel visualization for a B2B SaaS company.</p>
+              <div class="card-tags">
+                <span class="tag">5 Pages</span>
+                <span class="tag">Dashboard</span>
+                <span class="tag">Analytics</span>
+                <span class="tag">B2B</span>
+              </div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </a>
+
+        <!-- Coming soon: E-Commerce -->
+        <div class="example-card coming-soon" style="grid-column:span 1;">
+          <div class="card-preview" style="justify-content:center; align-items:center;">
+            <div class="coming-label">Coming Soon</div>
+            <div style="text-align:center;">
+              <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:12px;">02</div>
+              <div class="label">E-Commerce Admin</div>
+            </div>
+          </div>
+          <div class="card-meta">
+            <div>
+              <h2 class="card-title">E-Commerce Admin</h2>
+              <p class="card-desc">Order management, inventory, revenue analytics, and customer insights.</p>
+              <div class="card-tags">
+                <span class="tag">Retail</span>
+                <span class="tag">Orders</span>
+              </div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- Coming soon: Dev Tools -->
+        <div class="example-card coming-soon">
+          <div class="card-preview" style="justify-content:center; align-items:center;">
+            <div class="coming-label">Coming Soon</div>
+            <div style="text-align:center;">
+              <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:12px;">03</div>
+              <div class="label">Dev Tools Console</div>
+            </div>
+          </div>
+          <div class="card-meta">
+            <div>
+              <h2 class="card-title">Dev Tools Console</h2>
+              <p class="card-desc">API monitoring, error tracking, deployment pipeline, and performance metrics.</p>
+              <div class="card-tags">
+                <span class="tag">SaaS</span>
+                <span class="tag">APIs</span>
+              </div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- Coming soon: Finance -->
+        <div class="example-card coming-soon">
+          <div class="card-preview" style="justify-content:center; align-items:center;">
+            <div class="coming-label">Coming Soon</div>
+            <div style="text-align:center;">
+              <div style="font-size:48px; font-weight:900; color:var(--border); letter-spacing:-0.05em; line-height:1; margin-bottom:12px;">04</div>
+              <div class="label">Finance Dashboard</div>
+            </div>
+          </div>
+          <div class="card-meta">
+            <div>
+              <h2 class="card-title">Finance Dashboard</h2>
+              <p class="card-desc">Revenue forecasting, budget tracking, and financial reporting suite.</p>
+              <div class="card-tags">
+                <span class="tag">Finance</span>
+                <span class="tag">Reports</span>
+              </div>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer style="border-top:1px solid var(--border); padding:48px 40px; margin-top:40px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; max-width:1200px; margin:0 auto;">
+      <div>
+        <div style="font-size:11px; font-weight:900; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-1); margin-bottom:4px;">Swiss Design System</div>
+        <div style="font-size:13px; color:var(--text-2);">v0.1.0 — MIT License</div>
+      </div>
+      <a href="index.html" style="font-size:13px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-2); text-decoration:none;">← Components</a>
+    </div>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    toggle.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', !isDark);
+      toggle.textContent = isDark ? 'Dark' : 'Light';
+    });
+  </script>
+</body>
+</html>
