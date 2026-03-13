@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revenue — Crestline Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Monthly bar chart — CSS only, vertical bars */
+    .monthly-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 160px;
+      padding-bottom: 28px;
+      position: relative;
+    }
+    .monthly-chart::after {
+      content: '';
+      position: absolute;
+      bottom: 28px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+    .monthly-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .monthly-bar {
+      width: 100%;
+      background: var(--surface-2);
+      border-radius: 1px 1px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      transition: background 120ms;
+      position: relative;
+    }
+    .monthly-bar.active {
+      background: var(--red);
+      border-color: var(--red);
+    }
+    .monthly-bar.highlight {
+      background: rgba(230,57,70,0.35);
+      border-color: rgba(230,57,70,0.5);
+    }
+    .monthly-bar:hover {
+      background: var(--red);
+      border-color: var(--red);
+    }
+    .monthly-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      position: absolute;
+      bottom: -20px;
+      white-space: nowrap;
+    }
+    .monthly-value {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-2);
+      margin-bottom: 2px;
+    }
+    .monthly-col.active .monthly-value { color: var(--text-1); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Crestline</div>
+      <div class="sidebar-logo-sub">Commerce Admin</div>
+    </div>
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Overview
+      </a>
+      <a href="orders.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 5h6M4 8h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Orders
+      </a>
+      <a href="inventory.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4v6L7 13 1 10V4L7 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 1v12M1 4l6 3 6-3" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Inventory
+      </a>
+      <a href="customers.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Customers
+      </a>
+      <a href="revenue.html" class="sidebar-item active">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="3" height="7" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="3" width="3" height="10" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="1" width="3" height="12" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Revenue
+      </a>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M0.5 13c0-1.933 1.567-3.5 3.5-3.5m6 0c1.933 0 3.5 1.567 3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Team
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JT</div>
+        <div>
+          <div class="sidebar-user-name">Jamie Torres</div>
+          <div class="sidebar-user-role">Head of Commerce</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Crestline Admin
+        <span class="topbar-breadcrumb">/ Revenue</span>
+      </div>
+      <div class="topbar-right">
+        <span style="font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Q1 2024</span>
+        <button class="btn btn-ghost btn-sm">Export Report</button>
+        <button class="btn btn-primary btn-sm">Schedule Report</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI Row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Gross Merch. Value</div>
+          <div class="stat-value">$4.2M</div>
+          <div class="stat-delta up">↑ 18% vs Q4 2023</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Net Revenue</div>
+          <div class="stat-value green">$3.8M</div>
+          <div class="stat-delta up">↑ 16% vs Q4 2023</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Gross Margin</div>
+          <div class="stat-value">58%</div>
+          <div class="stat-delta up">↑ 2pp vs Q4 2023</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ROAS</div>
+          <div class="stat-value yellow">4.2x</div>
+          <div class="stat-delta up">↑ 0.4x vs Q4 2023</div>
+        </div>
+      </div>
+
+      <!-- Monthly Chart -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-header">
+          <h2 class="panel-title">Monthly GMV — 2023–2024</h2>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span style="font-size:11px;color:var(--text-2);font-weight:700;">Peak: Nov $1.02M (Holiday)</span>
+            <span class="badge badge-neutral">12 Months</span>
+          </div>
+        </div>
+        <div class="panel-body">
+          <!-- CSS-only vertical bar chart -->
+          <!-- Max value: $1,020,000 (Nov). Heights proportional. -->
+          <div class="monthly-chart">
+            <!-- Jan 2023: $248k → 24.3% of max -->
+            <div class="monthly-col">
+              <div class="monthly-value">$248k</div>
+              <div class="monthly-bar" style="height:39px;"><span class="monthly-label">Jan</span></div>
+            </div>
+            <!-- Feb: $212k → 20.8% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$212k</div>
+              <div class="monthly-bar" style="height:33px;"><span class="monthly-label">Feb</span></div>
+            </div>
+            <!-- Mar: $268k → 26.3% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$268k</div>
+              <div class="monthly-bar" style="height:42px;"><span class="monthly-label">Mar</span></div>
+            </div>
+            <!-- Apr: $294k → 28.8% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$294k</div>
+              <div class="monthly-bar" style="height:46px;"><span class="monthly-label">Apr</span></div>
+            </div>
+            <!-- May: $380k → 37.3% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$380k</div>
+              <div class="monthly-bar highlight" style="height:60px;"><span class="monthly-label">May</span></div>
+            </div>
+            <!-- Jun: $428k → 42.0% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$428k</div>
+              <div class="monthly-bar highlight" style="height:67px;"><span class="monthly-label">Jun</span></div>
+            </div>
+            <!-- Jul: $510k → 50.0% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$510k</div>
+              <div class="monthly-bar highlight" style="height:79px;"><span class="monthly-label">Jul</span></div>
+            </div>
+            <!-- Aug: $486k → 47.6% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$486k</div>
+              <div class="monthly-bar highlight" style="height:75px;"><span class="monthly-label">Aug</span></div>
+            </div>
+            <!-- Sep: $412k → 40.4% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$412k</div>
+              <div class="monthly-bar highlight" style="height:64px;"><span class="monthly-label">Sep</span></div>
+            </div>
+            <!-- Oct: $588k → 57.6% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$588k</div>
+              <div class="monthly-bar highlight" style="height:91px;"><span class="monthly-label">Oct</span></div>
+            </div>
+            <!-- Nov: $1,020k → 100% (Peak) -->
+            <div class="monthly-col active">
+              <div class="monthly-value">$1.02M</div>
+              <div class="monthly-bar active" style="height:130px;"><span class="monthly-label" style="color:var(--red);">Nov ★</span></div>
+            </div>
+            <!-- Dec: $840k → 82.4% -->
+            <div class="monthly-col">
+              <div class="monthly-value">$840k</div>
+              <div class="monthly-bar highlight" style="height:107px;"><span class="monthly-label">Dec</span></div>
+            </div>
+          </div>
+          <div style="margin-top:24px;display:flex;gap:24px;padding-top:8px;">
+            <div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Full Year 2023 GMV</div>
+              <div style="font-size:18px;font-weight:900;letter-spacing:-0.02em;">$5.69M</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">YoY Growth</div>
+              <div style="font-size:18px;font-weight:900;letter-spacing:-0.02em;color:var(--green);">+24%</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Q1 2024 Run Rate</div>
+              <div style="font-size:18px;font-weight:900;letter-spacing:-0.02em;color:var(--yellow);">$16.8M ARR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Channel Breakdown + Top Products -->
+      <div class="grid-2" style="margin-bottom:24px;">
+
+        <!-- Revenue by Channel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Revenue by Channel</h2>
+            <span class="badge badge-neutral">Q1 2024</span>
+          </div>
+          <div class="panel-body-flush">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Channel</th>
+                  <th>Orders</th>
+                  <th>GMV</th>
+                  <th>Share</th>
+                  <th>AOV</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div class="status-dot live"></div>
+                      <span class="fw-700">Web</span>
+                    </div>
+                  </td>
+                  <td>10,840</td>
+                  <td class="fw-700">$2,340,000</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <div style="width:40px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:100%;height:100%;background:var(--red);border-radius:1px;"></div>
+                      </div>
+                      55.7%
+                    </div>
+                  </td>
+                  <td>$216</td>
+                  <td style="color:var(--green);font-weight:700;">↑ 14%</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div class="status-dot live"></div>
+                      <span class="fw-700">iOS App</span>
+                    </div>
+                  </td>
+                  <td>4,210</td>
+                  <td class="fw-700">$1,020,000</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <div style="width:40px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:43%;height:100%;background:var(--red);border-radius:1px;"></div>
+                      </div>
+                      24.3%
+                    </div>
+                  </td>
+                  <td>$242</td>
+                  <td style="color:var(--green);font-weight:700;">↑ 28%</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div class="status-dot live"></div>
+                      <span class="fw-700">Android App</span>
+                    </div>
+                  </td>
+                  <td>1,840</td>
+                  <td class="fw-700">$424,000</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <div style="width:40px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:18%;height:100%;background:var(--yellow);border-radius:1px;"></div>
+                      </div>
+                      10.1%
+                    </div>
+                  </td>
+                  <td>$230</td>
+                  <td style="color:var(--green);font-weight:700;">↑ 19%</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div class="status-dot paused"></div>
+                      <span class="fw-700">Wholesale</span>
+                    </div>
+                  </td>
+                  <td>210</td>
+                  <td class="fw-700">$328,000</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <div style="width:40px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:14%;height:100%;background:var(--border);border-radius:1px;"></div>
+                      </div>
+                      7.8%
+                    </div>
+                  </td>
+                  <td>$1,562</td>
+                  <td style="color:var(--red);font-weight:700;">↓ 4%</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div class="status-dot paused"></div>
+                      <span class="fw-700">Retail Partners</span>
+                    </div>
+                  </td>
+                  <td>88</td>
+                  <td class="fw-700">$88,000</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <div style="width:40px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:4%;height:100%;background:var(--border);border-radius:1px;"></div>
+                      </div>
+                      2.1%
+                    </div>
+                  </td>
+                  <td>$1,000</td>
+                  <td style="color:var(--text-2);font-weight:700;">— 0%</td>
+                </tr>
+                <tr style="background:var(--surface-2);">
+                  <td><span class="fw-700">Total</span></td>
+                  <td class="fw-700">17,188</td>
+                  <td class="fw-700" style="color:var(--green);">$4,200,000</td>
+                  <td class="fw-700">100%</td>
+                  <td class="fw-700">$228</td>
+                  <td style="color:var(--green);font-weight:700;">↑ 18%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Margin Analysis -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Margin Analysis by Category</h2>
+          </div>
+          <div class="panel-body">
+            <div class="bar-chart">
+              <div class="bar-row">
+                <div class="bar-label">Climbing</div>
+                <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+                <div class="bar-value" style="color:var(--green);">68%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Accessories</div>
+                <div class="bar-track"><div class="bar-fill green" style="width:94%"></div></div>
+                <div class="bar-value" style="color:var(--green);">64%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Outerwear</div>
+                <div class="bar-track"><div class="bar-fill" style="width:88%"></div></div>
+                <div class="bar-value">60%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Packs &amp; Bags</div>
+                <div class="bar-track"><div class="bar-fill" style="width:84%"></div></div>
+                <div class="bar-value">57%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Footwear</div>
+                <div class="bar-track"><div class="bar-fill yellow" style="width:75%"></div></div>
+                <div class="bar-value">51%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Camping &amp; Shelter</div>
+                <div class="bar-track"><div class="bar-fill yellow" style="width:69%"></div></div>
+                <div class="bar-value">47%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Navigation &amp; Elec.</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:56%"></div></div>
+                <div class="bar-value" style="color:var(--text-2);">38%</div>
+              </div>
+            </div>
+            <div style="margin-top:20px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:8px;">Blended Gross Margin</div>
+              <div style="display:flex;align-items:baseline;gap:8px;">
+                <div style="font-size:32px;font-weight:900;letter-spacing:-0.03em;color:var(--green);">58%</div>
+                <div style="font-size:12px;color:var(--green);font-weight:700;">↑ 2pp YoY</div>
+              </div>
+              <div style="margin-top:6px;font-size:12px;color:var(--text-2);">Net Revenue after returns: <span style="color:var(--text-1);font-weight:700;">$3,802,400</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Top Products + Refund Analysis -->
+      <div class="grid-2">
+
+        <!-- Top Performing Products -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Top Products by Revenue</h2>
+            <a href="inventory.html" class="btn btn-ghost btn-sm">Inventory →</a>
+          </div>
+          <div class="panel-body-flush">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Product</th>
+                  <th>Units</th>
+                  <th>Revenue</th>
+                  <th>Margin</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:var(--red);font-weight:900;">1</td>
+                  <td>
+                    <div class="fw-700" style="font-size:12px;">Arc'teryx Beta AR Jacket</div>
+                    <div style="font-size:11px;color:var(--text-2);">ARC-BAR-MM · Outerwear</div>
+                  </td>
+                  <td>842</td>
+                  <td class="fw-700">$630,658</td>
+                  <td style="color:var(--green);font-weight:700;">62%</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--text-2);font-weight:900;">2</td>
+                  <td>
+                    <div class="fw-700" style="font-size:12px;">Salomon Speedcross 6</div>
+                    <div style="font-size:11px;color:var(--text-2);">SAL-SC6-W8 · Footwear</div>
+                  </td>
+                  <td>1,204</td>
+                  <td class="fw-700">$186,620</td>
+                  <td style="color:var(--text-2);font-weight:700;">49%</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--text-2);font-weight:900;">3</td>
+                  <td>
+                    <div class="fw-700" style="font-size:12px;">Osprey Atmos AG 65 Pack</div>
+                    <div style="font-size:11px;color:var(--text-2);">OSP-ATM-BT · Packs</div>
+                  </td>
+                  <td>618</td>
+                  <td class="fw-700">$179,220</td>
+                  <td style="color:var(--green);font-weight:700;">55%</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--text-2);font-weight:900;">4</td>
+                  <td>
+                    <div class="fw-700" style="font-size:12px;">Patagonia Nano Puff Jacket</div>
+                    <div style="font-size:11px;color:var(--text-2);">PAT-NPJ-WS · Outerwear</div>
+                  </td>
+                  <td>920</td>
+                  <td class="fw-700">$165,600</td>
+                  <td style="color:var(--green);font-weight:700;">61%</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--text-2);font-weight:900;">5</td>
+                  <td>
+                    <div class="fw-700" style="font-size:12px;">Garmin inReach Mini 2</div>
+                    <div style="font-size:11px;color:var(--text-2);">GAR-IRM-2 · Navigation</div>
+                  </td>
+                  <td>324</td>
+                  <td class="fw-700">$128,016</td>
+                  <td style="color:var(--text-2);font-weight:700;">36%</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--text-2);font-weight:900;">6</td>
+                  <td>
+                    <div class="fw-700" style="font-size:12px;">MSR Hubba NX 2-Person Tent</div>
+                    <div style="font-size:11px;color:var(--text-2);">MSR-HNX-2P · Camping</div>
+                  </td>
+                  <td>218</td>
+                  <td class="fw-700">$97,882</td>
+                  <td style="color:var(--text-2);font-weight:700;">45%</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--text-2);font-weight:900;">7</td>
+                  <td>
+                    <div class="fw-700" style="font-size:12px;">Hoka Speedgoat 5 Trail Shoe</div>
+                    <div style="font-size:11px;color:var(--text-2);">HOK-SG5-M10 · Footwear</div>
+                  </td>
+                  <td>510</td>
+                  <td class="fw-700">$79,050</td>
+                  <td style="color:var(--text-2);font-weight:700;">52%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Refund & Return Analysis -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Refund &amp; Return Analysis</h2>
+            <span class="badge badge-neutral">Q1 2024</span>
+          </div>
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+              <div style="padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Total Returns</div>
+                <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;">350</div>
+                <div style="font-size:11px;color:var(--text-2);margin-top:4px;">1.9% of orders</div>
+              </div>
+              <div style="padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Refund Value</div>
+                <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;color:var(--red);">$79,800</div>
+                <div style="font-size:11px;color:var(--text-2);margin-top:4px;">1.9% of GMV</div>
+              </div>
+              <div style="padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Avg Refund Value</div>
+                <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;">$228</div>
+                <div style="font-size:11px;color:var(--text-2);margin-top:4px;">Same as AOV</div>
+              </div>
+              <div style="padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Net Revenue</div>
+                <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;color:var(--green);">$3.80M</div>
+                <div style="font-size:11px;color:var(--text-2);margin-top:4px;">After all deductions</div>
+              </div>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:10px;">Return Reasons</div>
+            <div class="bar-chart">
+              <div class="bar-row">
+                <div class="bar-label">Wrong Size</div>
+                <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+                <div class="bar-value">38%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Defective</div>
+                <div class="bar-track"><div class="bar-fill yellow" style="width:60%"></div></div>
+                <div class="bar-value">23%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Not as Described</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:50%"></div></div>
+                <div class="bar-value">19%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Changed Mind</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:37%"></div></div>
+                <div class="bar-value">14%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Arrived Late</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:16%"></div></div>
+                <div class="bar-value">6%</div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;padding:12px 14px;background:rgba(76,175,130,0.06);border:1px solid rgba(76,175,130,0.2);border-radius:2px;display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:12px;color:var(--green);">
+                <span class="fw-700">Benchmark:</span> Industry avg return rate is 3.4% for outdoor gear — Crestline is 1.5pp below.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+  </script>
+</body>
+</html>

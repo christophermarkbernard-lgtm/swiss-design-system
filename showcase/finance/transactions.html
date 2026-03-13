@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaction Ledger — Vantage Capital Group</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .num { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .debit { color: var(--red); font-weight: 700; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .credit { color: var(--green); font-weight: 700; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .balance { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; }
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .filter-bar label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+    .filter-input {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 6px 10px;
+      font-family: var(--font);
+      font-size: 12px;
+      color: var(--text-1);
+      outline: none;
+      transition: border-color 120ms;
+    }
+    .filter-input:focus { border-color: var(--text-2); }
+    .filter-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    /* Account chip */
+    .acct-chip {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      border-radius: 1px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+    /* Category label */
+    .cat-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.04em;
+    }
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .page-info {
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .page-buttons { display: flex; gap: 4px; }
+    .page-btn {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: transparent;
+      color: var(--text-2);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: background 120ms, color 120ms;
+    }
+    .page-btn:hover { background: var(--surface-2); color: var(--text-1); }
+    .page-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+    /* Summary strip */
+    .ledger-summary {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .ledger-summary-item {
+      flex: 1;
+      padding: 12px 20px;
+      border-right: 1px solid var(--border);
+    }
+    .ledger-summary-item:last-child { border-right: none; }
+    .ledger-summary-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 4px;
+    }
+    .ledger-summary-val {
+      font-size: 14px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.02em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="sidebar-logo-name">Vantage Capital</span>
+    <span class="sidebar-logo-sub">Finance Dashboard</span>
+  </div>
+
+  <nav class="sidebar-section">
+    <div class="sidebar-section-label">Analytics</div>
+    <a href="index.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="3" height="6" fill="currentColor"/><rect x="5.5" y="4" width="3" height="9" fill="currentColor"/><rect x="10" y="1" width="3" height="12" fill="currentColor"/></svg>
+      </span>
+      P&L Overview
+    </a>
+    <a href="budget.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="1" y1="5" x2="13" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="5" x2="5" y2="13" stroke="currentColor" stroke-width="1.5"/></svg>
+      </span>
+      Budget
+    </a>
+    <a href="forecast.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="1,11 4,7 7,9 10,4 13,2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><polyline points="10,2 13,2 13,5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+      </span>
+      Forecast
+    </a>
+    <a href="reports.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="4.5" y1="5" x2="9.5" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5" stroke="currentColor" stroke-width="1.5"/><line x1="4.5" y1="10" x2="7.5" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+      </span>
+      Reports
+    </a>
+    <a href="transactions.html" class="sidebar-item active">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="1" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="4" r="1.5" fill="currentColor"/><circle cx="4" cy="7" r="1.5" fill="currentColor"/><circle cx="8" cy="10" r="1.5" fill="currentColor"/></svg>
+      </span>
+      Transactions
+    </a>
+  </nav>
+
+  <hr class="sidebar-divider" />
+
+  <nav class="sidebar-section">
+    <div class="sidebar-section-label">Settings</div>
+    <a href="#" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
+      Preferences
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">EV</div>
+      <div>
+        <div class="sidebar-user-name">Elena Vasquez</div>
+        <div class="sidebar-user-role">CFO</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">
+      Vantage Capital Group
+      <span class="topbar-breadcrumb">/ Transaction Ledger</span>
+    </div>
+    <div class="topbar-right">
+      <input type="text" class="search-input" placeholder="Search transactions…" />
+      <button class="btn btn-sm btn-ghost">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="5" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="2" x2="11" y2="2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Export
+      </button>
+      <button class="btn btn-sm btn-primary">+ New Entry</button>
+      <button class="btn-toggle" onclick="document.documentElement.classList.toggle('dark')">THEME</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- KPI Row -->
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-label">Transactions This Month</div>
+        <div class="stat-value">2,840</div>
+        <div class="stat-delta up">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,7 5,3 9,7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          +4.2% vs Feb 2024
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Volume</div>
+        <div class="stat-value">$48.2M</div>
+        <div class="stat-delta">March 2024</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Transaction</div>
+        <div class="stat-value">$16,972</div>
+        <div class="stat-delta up">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,7 5,3 9,7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          +2.1% vs Feb 2024
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Reconciliation</div>
+        <div class="stat-value accent">12</div>
+        <div class="stat-delta down">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,3 5,7 9,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Requires attention
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Ledger -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Transaction Ledger — March 2024</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-neutral">2,840 records</span>
+          <button class="btn btn-sm btn-ghost">Reconcile All</button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <label>Date Range</label>
+        <input type="text" class="filter-input" value="Mar 1 – Mar 31, 2024" style="width:160px;">
+        <div class="filter-sep"></div>
+        <label>Account</label>
+        <select class="filter-input" style="width:160px;">
+          <option>All Accounts</option>
+          <option>Operating — JPMorgan 4421</option>
+          <option>Payables — Citi 8834</option>
+          <option>Payroll — WF 2290</option>
+          <option>Custody — BNY 9912</option>
+        </select>
+        <div class="filter-sep"></div>
+        <label>Type</label>
+        <select class="filter-input" style="width:120px;">
+          <option>All Types</option>
+          <option>Revenue</option>
+          <option>Expense</option>
+          <option>Transfer</option>
+          <option>Payroll</option>
+        </select>
+        <div class="filter-sep"></div>
+        <label>Amount</label>
+        <input type="text" class="filter-input" placeholder="Min $" style="width:80px;">
+        <input type="text" class="filter-input" placeholder="Max $" style="width:80px;">
+        <div class="filter-sep"></div>
+        <label>Status</label>
+        <select class="filter-input" style="width:130px;">
+          <option>All Statuses</option>
+          <option>Cleared</option>
+          <option>Pending</option>
+          <option>Reconciled</option>
+        </select>
+        <button class="btn btn-sm btn-ghost" style="margin-left:4px;">Clear Filters</button>
+      </div>
+
+      <!-- Ledger summary strip -->
+      <div class="ledger-summary">
+        <div class="ledger-summary-item">
+          <div class="ledger-summary-label">Total Debits</div>
+          <div class="ledger-summary-val" style="color:var(--red);">$31,402,884.18</div>
+        </div>
+        <div class="ledger-summary-item">
+          <div class="ledger-summary-label">Total Credits</div>
+          <div class="ledger-summary-val" style="color:var(--green);">$48,218,340.00</div>
+        </div>
+        <div class="ledger-summary-item">
+          <div class="ledger-summary-label">Net Position</div>
+          <div class="ledger-summary-val" style="color:var(--green);">+$16,815,455.82</div>
+        </div>
+        <div class="ledger-summary-item">
+          <div class="ledger-summary-label">Cleared</div>
+          <div class="ledger-summary-val">2,828</div>
+        </div>
+        <div class="ledger-summary-item">
+          <div class="ledger-summary-label">Pending</div>
+          <div class="ledger-summary-val" style="color:var(--yellow);">12</div>
+        </div>
+      </div>
+
+      <div class="panel-body-flush">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Transaction ID</th>
+              <th>Description</th>
+              <th>Account</th>
+              <th>Category</th>
+              <th class="num">Debit</th>
+              <th class="num">Credit</th>
+              <th class="num">Balance</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 29, 2024</td>
+              <td><span class="mono">TXN-2024-08841</span></td>
+              <td>
+                <div class="fw-700">Q1 Management Fee — Apex Opportunities Fund</div>
+                <div class="text-muted" style="font-size:11px;">Quarterly fee receipt — $8.4B AUM × 62bps</div>
+              </td>
+              <td><span class="acct-chip">JPM–4421</span></td>
+              <td><span class="cat-label">Revenue</span></td>
+              <td class="debit">—</td>
+              <td class="credit">$13,020,000.00</td>
+              <td class="balance">$22,140,882.44</td>
+              <td><span class="badge badge-green">Cleared</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 29, 2024</td>
+              <td><span class="mono">TXN-2024-08840</span></td>
+              <td>
+                <div class="fw-700">Q1 Performance Fee — Meridian Growth Fund</div>
+                <div class="text-muted" style="font-size:11px;">Hurdle rate 8% — achieved 14.2%</div>
+              </td>
+              <td><span class="acct-chip">JPM–4421</span></td>
+              <td><span class="cat-label">Revenue</span></td>
+              <td class="debit">—</td>
+              <td class="credit">$3,840,000.00</td>
+              <td class="balance">$9,120,882.44</td>
+              <td><span class="badge badge-green">Cleared</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 28, 2024</td>
+              <td><span class="mono">TXN-2024-08812</span></td>
+              <td>
+                <div class="fw-700">March Payroll — All Staff (87 employees)</div>
+                <div class="text-muted" style="font-size:11px;">Direct payroll disbursement + employer NI</div>
+              </td>
+              <td><span class="acct-chip">WF–2290</span></td>
+              <td><span class="cat-label">Payroll</span></td>
+              <td class="debit">$5,940,000.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$5,280,882.44</td>
+              <td><span class="badge badge-green">Reconciled</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 27, 2024</td>
+              <td><span class="mono">TXN-2024-08798</span></td>
+              <td>
+                <div class="fw-700">Office Lease — 245 Park Avenue (Floor 32)</div>
+                <div class="text-muted" style="font-size:11px;">Q1 2024 rent + service charge — SL Green Realty</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Facilities</span></td>
+              <td class="debit">$1,248,000.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$11,220,882.44</td>
+              <td><span class="badge badge-green">Cleared</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 25, 2024</td>
+              <td><span class="mono">TXN-2024-08771</span></td>
+              <td>
+                <div class="fw-700">Bloomberg Terminal License — Enterprise (42 seats)</div>
+                <div class="text-muted" style="font-size:11px;">Annual contract renewal — prorated Q1</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Technology</span></td>
+              <td class="debit">$315,000.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$12,468,882.44</td>
+              <td><span class="badge badge-green">Reconciled</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 22, 2024</td>
+              <td><span class="mono">TXN-2024-08740</span></td>
+              <td>
+                <div class="fw-700">Q1 Advisory Fee — Hartwell Family Office</div>
+                <div class="text-muted" style="font-size:11px;">Strategic portfolio advisory — retainer</div>
+              </td>
+              <td><span class="acct-chip">JPM–4421</span></td>
+              <td><span class="cat-label">Revenue</span></td>
+              <td class="debit">—</td>
+              <td class="credit">$875,000.00</td>
+              <td class="balance">$12,783,882.44</td>
+              <td><span class="badge badge-green">Cleared</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 20, 2024</td>
+              <td><span class="mono">TXN-2024-08714</span></td>
+              <td>
+                <div class="fw-700">FactSet Research Systems — Quarterly License</div>
+                <div class="text-muted" style="font-size:11px;">Portfolio analytics platform — 18 seats</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Technology</span></td>
+              <td class="debit">$89,400.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$11,908,882.44</td>
+              <td><span class="badge badge-green">Reconciled</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 18, 2024</td>
+              <td><span class="mono">TXN-2024-08688</span></td>
+              <td>
+                <div class="fw-700">Weil Gotshal — Legal Retainer (Q1 2024)</div>
+                <div class="text-muted" style="font-size:11px;">Regulatory counsel + fund documentation</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Legal</span></td>
+              <td class="debit">$218,500.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$11,998,282.44</td>
+              <td><span class="badge badge-yellow">Pending</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 15, 2024</td>
+              <td><span class="mono">TXN-2024-08642</span></td>
+              <td>
+                <div class="fw-700">Mid-Month Payroll Advance — Senior Staff</div>
+                <div class="text-muted" style="font-size:11px;">Bi-weekly salary run — Managing Directors</div>
+              </td>
+              <td><span class="acct-chip">WF–2290</span></td>
+              <td><span class="cat-label">Payroll</span></td>
+              <td class="debit">$2,180,000.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$12,216,782.44</td>
+              <td><span class="badge badge-green">Reconciled</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 12, 2024</td>
+              <td><span class="mono">TXN-2024-08601</span></td>
+              <td>
+                <div class="fw-700">Deloitte & Touche — Audit Fees (FY2023)</div>
+                <div class="text-muted" style="font-size:11px;">Final audit invoice + out-of-pocket expenses</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Professional Fees</span></td>
+              <td class="debit">$640,000.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$14,396,782.44</td>
+              <td><span class="badge badge-green">Cleared</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 8, 2024</td>
+              <td><span class="mono">TXN-2024-08542</span></td>
+              <td>
+                <div class="fw-700">Q1 Management Fee — Helios Income Fund II</div>
+                <div class="text-muted" style="font-size:11px;">$2.1B AUM — Fixed income mandate</div>
+              </td>
+              <td><span class="acct-chip">JPM–4421</span></td>
+              <td><span class="cat-label">Revenue</span></td>
+              <td class="debit">—</td>
+              <td class="credit">$3,255,000.00</td>
+              <td class="balance">$15,036,782.44</td>
+              <td><span class="badge badge-green">Cleared</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 5, 2024</td>
+              <td><span class="mono">TXN-2024-08491</span></td>
+              <td>
+                <div class="fw-700">AWS — Cloud Infrastructure (Feb 2024)</div>
+                <div class="text-muted" style="font-size:11px;">EC2, S3, RDS — production + DR environment</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Technology</span></td>
+              <td class="debit">$48,240.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$11,781,782.44</td>
+              <td><span class="badge badge-green">Reconciled</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 4, 2024</td>
+              <td><span class="mono">TXN-2024-08472</span></td>
+              <td>
+                <div class="fw-700">ICE Data Services — Market Data Feed</div>
+                <div class="text-muted" style="font-size:11px;">Real-time pricing + fixed income reference data</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Technology</span></td>
+              <td class="debit">$62,800.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$11,829,022.44</td>
+              <td><span class="badge badge-yellow">Pending</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 1, 2024</td>
+              <td><span class="mono">TXN-2024-08410</span></td>
+              <td>
+                <div class="fw-700">BNY Mellon — Custody & Fund Admin Fees</div>
+                <div class="text-muted" style="font-size:11px;">Q4 2023 custody, fund accounting + transfer agent</div>
+              </td>
+              <td><span class="acct-chip">BNY–9912</span></td>
+              <td><span class="cat-label">Operations</span></td>
+              <td class="debit">$184,600.00</td>
+              <td class="credit">—</td>
+              <td class="balance">$11,891,822.44</td>
+              <td><span class="badge badge-green">Cleared</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="font-size:12px;white-space:nowrap;">Mar 1, 2024</td>
+              <td><span class="mono">TXN-2024-08401</span></td>
+              <td>
+                <div class="fw-700">Investor Relations Event — Q4 Results Roadshow</div>
+                <div class="text-muted" style="font-size:11px;">Travel, venue, catering — 3 cities, 14 meetings</div>
+              </td>
+              <td><span class="acct-chip">CITI–8834</span></td>
+              <td><span class="cat-label">Marketing</span></td>
+              <td class="debit">$96,422.18</td>
+              <td class="credit">—</td>
+              <td class="balance">$12,076,422.44</td>
+              <td><span class="badge badge-yellow">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <span class="page-info">Showing 1–15 of 2,840 transactions</span>
+        <div class="page-buttons">
+          <button class="page-btn">‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn" style="width:auto;padding:0 8px;">…</button>
+          <button class="page-btn">189</button>
+          <button class="page-btn">›</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

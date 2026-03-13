@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Reports — Vantage Capital Group</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    .num { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .report-type-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 1px;
+      white-space: nowrap;
+    }
+    .rtype-pl { background: rgba(230,57,70,0.1); color: var(--red); border: 1px solid rgba(230,57,70,0.2); }
+    .rtype-bs { background: rgba(76,175,130,0.1); color: var(--green); border: 1px solid rgba(76,175,130,0.2); }
+    .rtype-cf { background: rgba(240,192,64,0.1); color: var(--yellow); border: 1px solid rgba(240,192,64,0.2); }
+    .rtype-tx { background: rgba(107,107,107,0.15); color: var(--text-2); border: 1px solid var(--border); }
+    .rtype-co { background: rgba(100,140,220,0.12); color: #7ca0e8; border: 1px solid rgba(100,140,220,0.25); }
+    /* Scheduled panel */
+    .sched-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .sched-item:last-child { border-bottom: none; }
+    .sched-left { display: flex; flex-direction: column; gap: 3px; }
+    .sched-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
+    .sched-freq { font-size: 11px; color: var(--text-2); }
+    .sched-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .sched-next { font-size: 11px; font-weight: 700; color: var(--text-1); font-family: 'JetBrains Mono', monospace; }
+    /* Regulatory tracker */
+    .reg-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .reg-item:last-child { border-bottom: none; }
+    .reg-name { font-size: 12px; font-weight: 600; color: var(--text-1); }
+    .reg-body { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+    .reg-date { font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-2); }
+    .action-link { font-size: 11px; font-weight: 700; color: var(--red); cursor: pointer; background: none; border: none; font-family: var(--font); padding: 0; letter-spacing: 0.04em; }
+    .action-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="sidebar-logo-name">Vantage Capital</span>
+    <span class="sidebar-logo-sub">Finance Dashboard</span>
+  </div>
+
+  <nav class="sidebar-section">
+    <div class="sidebar-section-label">Analytics</div>
+    <a href="index.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="3" height="6" fill="currentColor"/><rect x="5.5" y="4" width="3" height="9" fill="currentColor"/><rect x="10" y="1" width="3" height="12" fill="currentColor"/></svg>
+      </span>
+      P&L Overview
+    </a>
+    <a href="budget.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="1" y1="5" x2="13" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="5" x2="5" y2="13" stroke="currentColor" stroke-width="1.5"/></svg>
+      </span>
+      Budget
+    </a>
+    <a href="forecast.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polyline points="1,11 4,7 7,9 10,4 13,2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><polyline points="10,2 13,2 13,5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+      </span>
+      Forecast
+    </a>
+    <a href="reports.html" class="sidebar-item active">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="4.5" y1="5" x2="9.5" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5" stroke="currentColor" stroke-width="1.5"/><line x1="4.5" y1="10" x2="7.5" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+      </span>
+      Reports
+    </a>
+    <a href="transactions.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="1" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="4" r="1.5" fill="currentColor"/><circle cx="4" cy="7" r="1.5" fill="currentColor"/><circle cx="8" cy="10" r="1.5" fill="currentColor"/></svg>
+      </span>
+      Transactions
+    </a>
+  </nav>
+
+  <hr class="sidebar-divider" />
+
+  <nav class="sidebar-section">
+    <div class="sidebar-section-label">Settings</div>
+    <a href="#" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
+      Preferences
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">EV</div>
+      <div>
+        <div class="sidebar-user-name">Elena Vasquez</div>
+        <div class="sidebar-user-role">CFO</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">
+      Vantage Capital Group
+      <span class="topbar-breadcrumb">/ Financial Reports</span>
+    </div>
+    <div class="topbar-right">
+      <input type="text" class="search-input" placeholder="Search reports…" />
+      <button class="btn btn-sm btn-ghost">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="5" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="2" x2="11" y2="2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Export
+      </button>
+      <button class="btn btn-sm btn-primary">+ New Report</button>
+      <button class="btn-toggle" onclick="document.documentElement.classList.toggle('dark')">THEME</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- KPI Row -->
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-label">Reports Generated</div>
+        <div class="stat-value">48</div>
+        <div class="stat-delta up">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,7 5,3 9,7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          +12 vs last quarter
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Scheduled Reports</div>
+        <div class="stat-value">12</div>
+        <div class="stat-delta">Next run: Apr 5, 2024</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-value accent">3</div>
+        <div class="stat-delta down">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,3 5,7 9,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Require CFO sign-off
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Last Updated</div>
+        <div class="stat-value" style="font-size:22px;letter-spacing:-0.02em;">Today</div>
+        <div class="stat-delta">Apr 3, 2024 — 09:14 UTC</div>
+      </div>
+    </div>
+
+    <!-- Report Library Table -->
+    <div class="panel" style="margin-bottom:24px;">
+      <div class="panel-header">
+        <h2 class="panel-title">Report Library</h2>
+        <div style="display:flex;gap:8px;">
+          <select class="search-input" style="width:140px;">
+            <option>All Types</option>
+            <option>P&L</option>
+            <option>Balance Sheet</option>
+            <option>Cash Flow</option>
+            <option>Tax</option>
+            <option>Compliance</option>
+          </select>
+          <select class="search-input" style="width:120px;">
+            <option>All Status</option>
+            <option>Published</option>
+            <option>Draft</option>
+            <option>Review</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel-body-flush">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Report Name</th>
+              <th>Type</th>
+              <th>Period</th>
+              <th>Created By</th>
+              <th>Last Run</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fw-700">Q1 2024 Profit & Loss Statement</td>
+              <td><span class="report-type-badge rtype-pl">P&L</span></td>
+              <td class="text-muted" style="font-size:12px;">Q1 2024</td>
+              <td class="text-muted" style="font-size:12px;">E. Vasquez</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Apr 2, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot live"></div><span class="badge badge-green">Published</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">View</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Export</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">Q1 2024 Balance Sheet</td>
+              <td><span class="report-type-badge rtype-bs">Balance Sheet</span></td>
+              <td class="text-muted" style="font-size:12px;">Q1 2024</td>
+              <td class="text-muted" style="font-size:12px;">M. Okonkwo</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Apr 2, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot live"></div><span class="badge badge-green">Published</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">View</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Export</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">Q1 2024 Cash Flow Statement</td>
+              <td><span class="report-type-badge rtype-cf">Cash Flow</span></td>
+              <td class="text-muted" style="font-size:12px;">Q1 2024</td>
+              <td class="text-muted" style="font-size:12px;">M. Okonkwo</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Apr 2, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot paused"></div><span class="badge badge-yellow">Review</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">Review</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Export</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">FY2023 Annual Report — Consolidated</td>
+              <td><span class="report-type-badge rtype-pl">P&L</span></td>
+              <td class="text-muted" style="font-size:12px;">FY 2023</td>
+              <td class="text-muted" style="font-size:12px;">E. Vasquez</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Jan 31, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot live"></div><span class="badge badge-green">Published</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">View</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Export</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">Q4 2023 Management Accounts</td>
+              <td><span class="report-type-badge rtype-pl">P&L</span></td>
+              <td class="text-muted" style="font-size:12px;">Q4 2023</td>
+              <td class="text-muted" style="font-size:12px;">R. Patel</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Jan 15, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot live"></div><span class="badge badge-green">Published</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">View</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Export</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">Q1 2024 Tax Provision Schedule</td>
+              <td><span class="report-type-badge rtype-tx">Tax</span></td>
+              <td class="text-muted" style="font-size:12px;">Q1 2024</td>
+              <td class="text-muted" style="font-size:12px;">D. Huang</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Apr 3, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot paused"></div><span class="badge badge-yellow">Review</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">Review</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Export</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">SEC Form ADV — Annual Update</td>
+              <td><span class="report-type-badge rtype-co">Compliance</span></td>
+              <td class="text-muted" style="font-size:12px;">FY 2023</td>
+              <td class="text-muted" style="font-size:12px;">L. Torres</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Feb 28, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot live"></div><span class="badge badge-green">Filed</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">View</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Archive</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">Fund Performance Attribution — Q1 2024</td>
+              <td><span class="report-type-badge rtype-pl">P&L</span></td>
+              <td class="text-muted" style="font-size:12px;">Q1 2024</td>
+              <td class="text-muted" style="font-size:12px;">R. Patel</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Apr 3, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot paused"></div><span class="badge badge-yellow">Review</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">Review</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">FY2023 Audited Financial Statements</td>
+              <td><span class="report-type-badge rtype-bs">Balance Sheet</span></td>
+              <td class="text-muted" style="font-size:12px;">FY 2023</td>
+              <td class="text-muted" style="font-size:12px;">E. Vasquez</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Mar 15, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot live"></div><span class="badge badge-green">Published</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">View</button> &nbsp; <button class="action-link" style="color:var(--text-2)">Export</button></td>
+            </tr>
+            <tr>
+              <td class="fw-700">AEOI / CRS — Client Information Report</td>
+              <td><span class="report-type-badge rtype-co">Compliance</span></td>
+              <td class="text-muted" style="font-size:12px;">Q1 2024</td>
+              <td class="text-muted" style="font-size:12px;">L. Torres</td>
+              <td class="text-muted" style="font-size:11px;font-family:'JetBrains Mono',monospace;">Mar 28, 2024</td>
+              <td><div style="display:flex;align-items:center;gap:6px;"><div class="status-dot draft"></div><span class="badge badge-neutral">Draft</span></div></td>
+              <td style="white-space:nowrap;"><button class="action-link">Edit</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Scheduled Reports + Regulatory Tracker -->
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Scheduled Reports</h2>
+          <button class="btn btn-sm btn-ghost">Manage Schedule</button>
+        </div>
+        <div class="panel-body">
+          <div class="sched-item">
+            <div class="sched-left">
+              <span class="sched-name">Monthly P&L Flash Report</span>
+              <span class="sched-freq">Monthly — 1st business day</span>
+            </div>
+            <div class="sched-right">
+              <span class="sched-next">May 1, 2024</span>
+              <span class="badge badge-green">Active</span>
+            </div>
+          </div>
+          <div class="sched-item">
+            <div class="sched-left">
+              <span class="sched-name">Weekly Cash Position Report</span>
+              <span class="sched-freq">Weekly — Every Monday 08:00</span>
+            </div>
+            <div class="sched-right">
+              <span class="sched-next">Apr 8, 2024</span>
+              <span class="badge badge-green">Active</span>
+            </div>
+          </div>
+          <div class="sched-item">
+            <div class="sched-left">
+              <span class="sched-name">Quarterly Management Accounts</span>
+              <span class="sched-freq">Quarterly — 5th business day</span>
+            </div>
+            <div class="sched-right">
+              <span class="sched-next">Jul 5, 2024</span>
+              <span class="badge badge-green">Active</span>
+            </div>
+          </div>
+          <div class="sched-item">
+            <div class="sched-left">
+              <span class="sched-name">Budget Variance Alert</span>
+              <span class="sched-freq">Weekly — Fridays if variance &gt;5%</span>
+            </div>
+            <div class="sched-right">
+              <span class="sched-next">Apr 5, 2024</span>
+              <span class="badge badge-yellow">Conditional</span>
+            </div>
+          </div>
+          <div class="sched-item">
+            <div class="sched-left">
+              <span class="sched-name">AUM Summary — Investor Relations</span>
+              <span class="sched-freq">Monthly — 3rd business day</span>
+            </div>
+            <div class="sched-right">
+              <span class="sched-next">May 3, 2024</span>
+              <span class="badge badge-green">Active</span>
+            </div>
+          </div>
+          <div class="sched-item">
+            <div class="sched-left">
+              <span class="sched-name">Daily Reconciliation Summary</span>
+              <span class="sched-freq">Daily — 07:30 UTC</span>
+            </div>
+            <div class="sched-right">
+              <span class="sched-next">Apr 4, 2024</span>
+              <span class="badge badge-green">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Regulatory Filing Tracker</h2>
+          <span class="badge badge-neutral">FY2024</span>
+        </div>
+        <div class="panel-body">
+          <div class="reg-item">
+            <div>
+              <div class="reg-name">Form ADV — Annual Amendment</div>
+              <div class="reg-body">SEC — Investment Adviser Registration</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="reg-date">Due: Mar 31, 2024</span>
+              <span class="badge badge-green">Filed</span>
+            </div>
+          </div>
+          <div class="reg-item">
+            <div>
+              <div class="reg-name">Form PF — Large Adviser</div>
+              <div class="reg-body">SEC — Private Fund Reporting</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="reg-date">Due: Apr 30, 2024</span>
+              <span class="badge badge-yellow">Pending</span>
+            </div>
+          </div>
+          <div class="reg-item">
+            <div>
+              <div class="reg-name">Form 13F — Institutional Holdings</div>
+              <div class="reg-body">SEC — Quarterly Equity Holdings</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="reg-date">Due: May 15, 2024</span>
+              <span class="badge badge-neutral">Scheduled</span>
+            </div>
+          </div>
+          <div class="reg-item">
+            <div>
+              <div class="reg-name">FATCA Annual Report</div>
+              <div class="reg-body">IRS — Foreign Account Tax Compliance</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="reg-date">Due: Mar 15, 2024</span>
+              <span class="badge badge-green">Filed</span>
+            </div>
+          </div>
+          <div class="reg-item">
+            <div>
+              <div class="reg-name">CFTC Form CPO-PQR</div>
+              <div class="reg-body">CFTC — Commodity Pool Operator</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="reg-date">Due: Feb 28, 2024</span>
+              <span class="badge badge-red">Overdue</span>
+            </div>
+          </div>
+          <div class="reg-item">
+            <div>
+              <div class="reg-name">State Blue Sky Filings (4 states)</div>
+              <div class="reg-body">NY, CA, TX, FL — Annual renewal</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="reg-date">Due: Jun 30, 2024</span>
+              <span class="badge badge-neutral">Scheduled</span>
+            </div>
+          </div>
+          <div class="reg-item">
+            <div>
+              <div class="reg-name">SEC Risk Assessment Questionnaire</div>
+              <div class="reg-body">OCIE — Annual compliance attestation</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="reg-date">Due: Apr 15, 2024</span>
+              <span class="badge badge-yellow">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

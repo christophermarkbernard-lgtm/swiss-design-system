@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P&L Overview — Vantage Capital Group</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Monthly bar chart */
+    .monthly-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 160px;
+      padding-bottom: 24px;
+      position: relative;
+    }
+    .monthly-chart::after {
+      content: '';
+      position: absolute;
+      bottom: 24px;
+      left: 0; right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+    .month-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+    }
+    .month-bars {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      width: 100%;
+    }
+    .month-bar {
+      flex: 1;
+      border-radius: 1px 1px 0 0;
+      min-height: 4px;
+    }
+    .month-bar.rev { background: var(--red); }
+    .month-bar.exp { background: var(--border); }
+    .month-label {
+      font-size: 10px;
+      color: var(--text-2);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      position: absolute;
+      bottom: 4px;
+    }
+    .month-group-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      position: relative;
+    }
+    /* Dept spend chart */
+    .dept-bars { display: flex; flex-direction: column; gap: 14px; }
+    .dept-row { display: flex; align-items: center; gap: 12px; }
+    .dept-name { font-size: 12px; color: var(--text-2); width: 100px; flex-shrink: 0; }
+    .dept-track { flex: 1; height: 8px; background: var(--surface-2); border-radius: 1px; overflow: hidden; }
+    .dept-fill { height: 100%; border-radius: 1px; background: var(--red); }
+    .dept-val { font-size: 12px; font-weight: 700; color: var(--text-1); width: 48px; text-align: right; flex-shrink: 0; }
+    /* P&L table section rows */
+    .pl-section-header td {
+      background: var(--surface-2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pl-subtotal td {
+      font-weight: 700;
+      color: var(--text-1);
+      border-top: 1px solid var(--border);
+    }
+    .pl-total td {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--text-1);
+      border-top: 2px solid var(--border);
+    }
+    .num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+    .select-pill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 5px 10px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-1);
+      cursor: pointer;
+    }
+    .period-tabs { display: flex; gap: 4px; }
+    .period-tab {
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-2);
+      cursor: pointer;
+      font-family: var(--font);
+      text-transform: uppercase;
+    }
+    .period-tab.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+    .chart-legend { display: flex; gap: 16px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); font-weight: 600; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 1px; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="sidebar-logo-name">Vantage Capital</span>
+    <span class="sidebar-logo-sub">Finance Dashboard</span>
+  </div>
+
+  <nav class="sidebar-section">
+    <div class="sidebar-section-label">Analytics</div>
+    <a href="index.html" class="sidebar-item active">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="7" width="3" height="6" fill="currentColor"/>
+          <rect x="5.5" y="4" width="3" height="9" fill="currentColor"/>
+          <rect x="10" y="1" width="3" height="12" fill="currentColor"/>
+        </svg>
+      </span>
+      P&L Overview
+    </a>
+    <a href="budget.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <line x1="1" y1="5" x2="13" y2="5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="5" y1="5" x2="5" y2="13" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </span>
+      Budget
+    </a>
+    <a href="forecast.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="1,11 4,7 7,9 10,4 13,2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+          <polyline points="10,2 13,2 13,5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        </svg>
+      </span>
+      Forecast
+    </a>
+    <a href="reports.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <line x1="4.5" y1="5" x2="9.5" y2="5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="4.5" y1="7.5" x2="9.5" y2="7.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="4.5" y1="10" x2="7.5" y2="10" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </span>
+      Reports
+    </a>
+    <a href="transactions.html" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="1" y1="4" x2="13" y2="4" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="1" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="11" cy="4" r="1.5" fill="currentColor"/>
+          <circle cx="4" cy="7" r="1.5" fill="currentColor"/>
+          <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
+        </svg>
+      </span>
+      Transactions
+    </a>
+  </nav>
+
+  <hr class="sidebar-divider" />
+
+  <nav class="sidebar-section">
+    <div class="sidebar-section-label">Settings</div>
+    <a href="#" class="sidebar-item">
+      <span class="sidebar-item-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+      Preferences
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">EV</div>
+      <div>
+        <div class="sidebar-user-name">Elena Vasquez</div>
+        <div class="sidebar-user-role">CFO</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">
+      Vantage Capital Group
+      <span class="topbar-breadcrumb">/ P&L Overview</span>
+    </div>
+    <div class="topbar-right">
+      <div class="period-tabs">
+        <button class="period-tab">Q3 2023</button>
+        <button class="period-tab">Q4 2023</button>
+        <button class="period-tab active">Q1 2024</button>
+        <button class="period-tab">Q2 2024</button>
+      </div>
+      <button class="btn btn-sm btn-ghost">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="5" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="2" x2="11" y2="2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Export
+      </button>
+      <button class="btn btn-sm btn-primary">+ New Report</button>
+      <button class="btn-toggle" onclick="document.documentElement.classList.toggle('dark')">THEME</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- KPI Row -->
+    <div class="grid-4" style="margin-bottom: 24px;">
+      <div class="stat-card">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">$48.2M</div>
+        <div class="stat-delta up">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,7 5,3 9,7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          +14.0% vs Q4 2023
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Operating Expenses</div>
+        <div class="stat-value">$31.4M</div>
+        <div class="stat-delta down">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,3 5,7 9,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          +9.0% vs Q4 2023
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">EBITDA</div>
+        <div class="stat-value green">$16.8M</div>
+        <div class="stat-delta up">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,7 5,3 9,7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          +22.0% vs Q4 2023
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Net Margin</div>
+        <div class="stat-value">28.4%</div>
+        <div class="stat-delta up">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1,7 5,3 9,7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          +3.2pp vs Q4 2023
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue vs Expenses Chart + Department Spend -->
+    <div class="grid-2" style="margin-bottom: 24px;">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Revenue vs Expenses — Monthly (2023–Q1 2024)</h2>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Revenue</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div>Expenses</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex; align-items:flex-end; gap:6px; height:160px; padding-bottom: 28px; position:relative;">
+            <!-- Month groups: Apr–Mar (12 months) -->
+            <!-- Heights proportional: max rev ~17M = 100%, scale down -->
+            <!-- Rev: 13.2,13.8,14.1,14.6,14.9,15.2,15.8,16.0,15.6,16.2,15.8,16.2M -->
+            <!-- Exp: 9.2,9.4,9.8,10.1,10.2,10.4,10.6,10.7,10.5,10.8,10.6,10.2M -->
+            <style>
+              .mcg { flex:1; display:flex; flex-direction:column; align-items:center; height:100%; gap:0; position:relative; }
+              .mcg-bars { flex:1; width:100%; display:flex; align-items:flex-end; gap:2px; }
+              .mb { flex:1; border-radius: 1px 1px 0 0; min-height:4px; }
+              .mb.r { background: var(--red); }
+              .mb.e { background: var(--border); }
+              .mcg-lbl { position:absolute; bottom:-20px; font-size:9px; color:var(--text-2); font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+            </style>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:78%"></div><div class="mb e" style="height:54%"></div></div><span class="mcg-lbl">Apr</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:81%"></div><div class="mb e" style="height:55%"></div></div><span class="mcg-lbl">May</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:83%"></div><div class="mb e" style="height:58%"></div></div><span class="mcg-lbl">Jun</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:86%"></div><div class="mb e" style="height:60%"></div></div><span class="mcg-lbl">Jul</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:88%"></div><div class="mb e" style="height:60%"></div></div><span class="mcg-lbl">Aug</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:90%"></div><div class="mb e" style="height:61%"></div></div><span class="mcg-lbl">Sep</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:93%"></div><div class="mb e" style="height:63%"></div></div><span class="mcg-lbl">Oct</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:94%"></div><div class="mb e" style="height:63%"></div></div><span class="mcg-lbl">Nov</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:92%"></div><div class="mb e" style="height:62%"></div></div><span class="mcg-lbl">Dec</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:96%"></div><div class="mb e" style="height:64%"></div></div><span class="mcg-lbl">Jan</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:98%"></div><div class="mb e" style="height:65%"></div></div><span class="mcg-lbl">Feb</span></div>
+            <div class="mcg"><div class="mcg-bars"><div class="mb r" style="height:100%"></div><div class="mb e" style="height:60%"></div></div><span class="mcg-lbl">Mar</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Department Spend — Q1 2024</h2>
+          <span class="text-muted" style="font-size:11px;">$31.4M total</span>
+        </div>
+        <div class="panel-body">
+          <div class="dept-bars">
+            <div class="dept-row">
+              <span class="dept-name">Compensation</span>
+              <div class="dept-track"><div class="dept-fill" style="width:58%;"></div></div>
+              <span class="dept-val">$18.2M</span>
+            </div>
+            <div class="dept-row">
+              <span class="dept-name">Operations</span>
+              <div class="dept-track"><div class="dept-fill" style="width:22%; background:var(--yellow)"></div></div>
+              <span class="dept-val">$6.8M</span>
+            </div>
+            <div class="dept-row">
+              <span class="dept-name">Technology</span>
+              <div class="dept-track"><div class="dept-fill" style="width:10%; background:var(--text-2)"></div></div>
+              <span class="dept-val">$3.1M</span>
+            </div>
+            <div class="dept-row">
+              <span class="dept-name">Marketing</span>
+              <div class="dept-track"><div class="dept-fill" style="width:8%; background:var(--text-2)"></div></div>
+              <span class="dept-val">$2.4M</span>
+            </div>
+            <div class="dept-row">
+              <span class="dept-name">G&A</span>
+              <div class="dept-track"><div class="dept-fill" style="width:3%; background:var(--border)"></div></div>
+              <span class="dept-val">$0.9M</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P&L Summary Table -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Profit & Loss Statement — Q1 2024</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="badge badge-green">Audited</span>
+          <button class="btn btn-sm btn-ghost">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 8.5l3-3 2.5 2.5 3-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            View Full
+          </button>
+        </div>
+      </div>
+      <div class="panel-body-flush">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40%">Line Item</th>
+              <th class="num">Q1 2024</th>
+              <th class="num">Q4 2023</th>
+              <th class="num">Q1 2023</th>
+              <th class="num">YoY Δ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="pl-section-header"><td colspan="5">Revenue</td></tr>
+            <tr>
+              <td>Management Fees</td>
+              <td class="num fw-700">$38,400,000</td>
+              <td class="num text-muted">$34,100,000</td>
+              <td class="num text-muted">$32,800,000</td>
+              <td class="num text-green fw-700">+17.1%</td>
+            </tr>
+            <tr>
+              <td>Performance Fees</td>
+              <td class="num fw-700">$7,200,000</td>
+              <td class="num text-muted">$6,400,000</td>
+              <td class="num text-muted">$5,900,000</td>
+              <td class="num text-green fw-700">+22.0%</td>
+            </tr>
+            <tr>
+              <td>Advisory & Consulting</td>
+              <td class="num fw-700">$2,600,000</td>
+              <td class="num text-muted">$1,800,000</td>
+              <td class="num text-muted">$2,100,000</td>
+              <td class="num text-green fw-700">+23.8%</td>
+            </tr>
+            <tr class="pl-subtotal">
+              <td>Total Revenue</td>
+              <td class="num">$48,200,000</td>
+              <td class="num text-muted">$42,300,000</td>
+              <td class="num text-muted">$40,800,000</td>
+              <td class="num text-green">+18.1%</td>
+            </tr>
+
+            <tr class="pl-section-header"><td colspan="5">Operating Expenses</td></tr>
+            <tr>
+              <td>Compensation & Benefits</td>
+              <td class="num fw-700">$18,200,000</td>
+              <td class="num text-muted">$16,800,000</td>
+              <td class="num text-muted">$16,100,000</td>
+              <td class="num text-accent fw-700">+13.0%</td>
+            </tr>
+            <tr>
+              <td>Operations</td>
+              <td class="num fw-700">$6,800,000</td>
+              <td class="num text-muted">$6,200,000</td>
+              <td class="num text-muted">$5,900,000</td>
+              <td class="num text-accent fw-700">+15.3%</td>
+            </tr>
+            <tr>
+              <td>Technology & Infrastructure</td>
+              <td class="num fw-700">$3,100,000</td>
+              <td class="num text-muted">$2,900,000</td>
+              <td class="num text-muted">$2,600,000</td>
+              <td class="num text-accent fw-700">+19.2%</td>
+            </tr>
+            <tr>
+              <td>Marketing & Business Dev</td>
+              <td class="num fw-700">$2,400,000</td>
+              <td class="num text-muted">$2,100,000</td>
+              <td class="num text-muted">$1,900,000</td>
+              <td class="num text-accent fw-700">+26.3%</td>
+            </tr>
+            <tr>
+              <td>General & Administrative</td>
+              <td class="num fw-700">$900,000</td>
+              <td class="num text-muted">$820,000</td>
+              <td class="num text-muted">$780,000</td>
+              <td class="num text-accent fw-700">+15.4%</td>
+            </tr>
+            <tr class="pl-subtotal">
+              <td>Total Operating Expenses</td>
+              <td class="num">$31,400,000</td>
+              <td class="num text-muted">$28,820,000</td>
+              <td class="num text-muted">$27,280,000</td>
+              <td class="num text-accent">+15.1%</td>
+            </tr>
+
+            <tr class="pl-section-header"><td colspan="5">Profitability</td></tr>
+            <tr>
+              <td>EBITDA</td>
+              <td class="num fw-700 text-green">$16,800,000</td>
+              <td class="num text-muted">$13,480,000</td>
+              <td class="num text-muted">$13,520,000</td>
+              <td class="num text-green fw-700">+24.3%</td>
+            </tr>
+            <tr>
+              <td>Depreciation & Amortization</td>
+              <td class="num fw-700">($480,000)</td>
+              <td class="num text-muted">($460,000)</td>
+              <td class="num text-muted">($410,000)</td>
+              <td class="num text-accent">+17.1%</td>
+            </tr>
+            <tr>
+              <td>EBIT</td>
+              <td class="num fw-700">$16,320,000</td>
+              <td class="num text-muted">$13,020,000</td>
+              <td class="num text-muted">$13,110,000</td>
+              <td class="num text-green fw-700">+24.5%</td>
+            </tr>
+            <tr>
+              <td>Interest Expense (net)</td>
+              <td class="num fw-700">($620,000)</td>
+              <td class="num text-muted">($580,000)</td>
+              <td class="num text-muted">($540,000)</td>
+              <td class="num text-accent">+14.8%</td>
+            </tr>
+            <tr>
+              <td>Income Tax Provision (28%)</td>
+              <td class="num fw-700">($4,399,600)</td>
+              <td class="num text-muted">($3,483,600)</td>
+              <td class="num text-muted">($3,515,880)</td>
+              <td class="num text-accent">+25.1%</td>
+            </tr>
+            <tr class="pl-total">
+              <td>Net Income</td>
+              <td class="num text-green">$11,300,400</td>
+              <td class="num text-muted">$8,956,400</td>
+              <td class="num text-muted">$9,054,120</td>
+              <td class="num text-green">+24.8%</td>
+            </tr>
+            <tr>
+              <td>Net Margin</td>
+              <td class="num fw-700 text-green">28.4%</td>
+              <td class="num text-muted">21.2%</td>
+              <td class="num text-muted">22.2%</td>
+              <td class="num text-green fw-700">+6.2pp</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Period tab toggle
+  document.querySelectorAll('.period-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

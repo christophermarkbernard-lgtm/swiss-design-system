@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orders — Crestline Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-select {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 7px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text-1);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b6b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color 120ms;
+    }
+    .filter-select:focus { border-color: var(--text-2); }
+
+    /* Side panel overlay */
+    .order-detail-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 380px;
+      background: var(--surface-1);
+      border-left: 1px solid var(--border);
+      z-index: 30;
+      overflow-y: auto;
+      transform: translateX(0);
+      transition: transform 200ms ease;
+    }
+    .order-detail-panel.hidden {
+      transform: translateX(100%);
+    }
+    .detail-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .detail-section {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-section:last-child { border-bottom: none; }
+    .detail-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 12px;
+    }
+    .detail-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+    }
+    .detail-item:last-child { border-bottom: none; }
+    .timeline-item {
+      display: flex;
+      gap: 14px;
+      padding: 10px 0;
+    }
+    .timeline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .timeline-line {
+      position: relative;
+    }
+    .timeline-line::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: 3px;
+      width: 1px;
+      height: calc(100% + 4px);
+      background: var(--border);
+    }
+    .timeline-item:last-child .timeline-line::after { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Crestline</div>
+      <div class="sidebar-logo-sub">Commerce Admin</div>
+    </div>
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Overview
+      </a>
+      <a href="orders.html" class="sidebar-item active">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 5h6M4 8h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Orders
+      </a>
+      <a href="inventory.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4v6L7 13 1 10V4L7 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 1v12M1 4l6 3 6-3" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Inventory
+      </a>
+      <a href="customers.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Customers
+      </a>
+      <a href="revenue.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="3" height="7" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="3" width="3" height="10" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="1" width="3" height="12" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Revenue
+      </a>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M0.5 13c0-1.933 1.567-3.5 3.5-3.5m6 0c1.933 0 3.5 1.567 3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Team
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JT</div>
+        <div>
+          <div class="sidebar-user-name">Jamie Torres</div>
+          <div class="sidebar-user-role">Head of Commerce</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Crestline Admin
+        <span class="topbar-breadcrumb">/ Orders</span>
+      </div>
+      <div class="topbar-right">
+        <span style="font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Q1 2024</span>
+        <button class="btn btn-ghost btn-sm">Export CSV</button>
+        <button class="btn btn-primary btn-sm">+ New Order</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI Row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value">18,420</div>
+          <div class="stat-delta up">↑ 12% vs Q4 2023</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Fulfillment</div>
+          <div class="stat-value yellow">1,020</div>
+          <div class="stat-delta" style="color:var(--text-2);">Avg. 1.4 days to ship</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Returns</div>
+          <div class="stat-value">350</div>
+          <div class="stat-delta down">↑ 22 vs Q4 2023</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Refund Rate</div>
+          <div class="stat-value">1.9%</div>
+          <div class="stat-delta up">↓ 0.3pp vs Q4 2023</div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="margin-bottom:16px;">
+        <div class="filter-bar">
+          <input class="search-input" type="text" placeholder="Search order # or customer…" style="width:280px;" />
+          <select class="filter-select">
+            <option>All Statuses</option>
+            <option>Delivered</option>
+            <option>Shipped</option>
+            <option>Processing</option>
+            <option>Returned</option>
+          </select>
+          <select class="filter-select">
+            <option>All Dates</option>
+            <option>Today</option>
+            <option>Last 7 days</option>
+            <option>This Month</option>
+            <option>Q1 2024</option>
+          </select>
+          <select class="filter-select">
+            <option>All Channels</option>
+            <option>Web</option>
+            <option>iOS App</option>
+            <option>Android App</option>
+            <option>Wholesale</option>
+          </select>
+          <button class="btn btn-ghost btn-sm">Clear Filters</button>
+          <span style="margin-left:auto;font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Showing 12 of 18,420</span>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-body-flush">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Channel</th>
+                <th>Items</th>
+                <th>Subtotal</th>
+                <th>Shipping</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Fulfillment Center</th>
+                <th>Placed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="cursor:pointer;" onclick="document.getElementById('order-detail').classList.remove('hidden')">
+                <td><span class="font-mono" style="font-size:12px;color:var(--red);">#CR-10482</span></td>
+                <td><span class="fw-700">Sarah Kimura</span></td>
+                <td style="color:var(--text-2);font-size:12px;">s.kimura@gmail.com</td>
+                <td><span class="badge badge-neutral">Web</span></td>
+                <td>1</td>
+                <td>$749.00</td>
+                <td style="color:var(--green);">Free</td>
+                <td class="fw-700">$749.00</td>
+                <td><span class="badge badge-green">Delivered</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 12, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10481</span></td>
+                <td><span class="fw-700">Marcus Webb</span></td>
+                <td style="color:var(--text-2);font-size:12px;">mwebb@outlook.com</td>
+                <td><span class="badge badge-neutral">Web</span></td>
+                <td>2</td>
+                <td>$320.00</td>
+                <td>$18.00</td>
+                <td class="fw-700">$338.00</td>
+                <td><span class="badge badge-green">Delivered</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 12, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10480</span></td>
+                <td><span class="fw-700">Priya Nair</span></td>
+                <td style="color:var(--text-2);font-size:12px;">priya.nair@icloud.com</td>
+                <td><span class="badge badge-neutral" style="background:rgba(76,175,130,0.1);color:var(--green);border-color:rgba(76,175,130,0.25);">iOS App</span></td>
+                <td>1</td>
+                <td>$290.00</td>
+                <td style="color:var(--green);">Free</td>
+                <td class="fw-700">$290.00</td>
+                <td><span class="badge badge-neutral">Shipped</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Mar 12, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10479</span></td>
+                <td><span class="fw-700">Devon Okafor</span></td>
+                <td style="color:var(--text-2);font-size:12px;">d.okafor@yahoo.com</td>
+                <td><span class="badge badge-neutral">Web</span></td>
+                <td>2</td>
+                <td>$112.00</td>
+                <td>$12.00</td>
+                <td class="fw-700">$124.00</td>
+                <td><span class="badge badge-yellow">Processing</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 12, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10478</span></td>
+                <td><span class="fw-700">Elena Vasquez</span></td>
+                <td style="color:var(--text-2);font-size:12px;">evasquez@gmail.com</td>
+                <td><span class="badge badge-neutral" style="background:rgba(76,175,130,0.1);color:var(--green);border-color:rgba(76,175,130,0.25);">iOS App</span></td>
+                <td>2</td>
+                <td>$271.00</td>
+                <td>$18.00</td>
+                <td class="fw-700">$289.00</td>
+                <td><span class="badge badge-green">Delivered</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Mar 11, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10477</span></td>
+                <td><span class="fw-700">Tom Harrington</span></td>
+                <td style="color:var(--text-2);font-size:12px;">tharrington@gmail.com</td>
+                <td><span class="badge badge-neutral" style="background:rgba(240,192,64,0.1);color:var(--yellow);border-color:rgba(240,192,64,0.25);">Android</span></td>
+                <td>1</td>
+                <td>$155.00</td>
+                <td style="color:var(--green);">Free</td>
+                <td class="fw-700">$155.00</td>
+                <td><span class="badge badge-green">Delivered</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 11, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10476</span></td>
+                <td><span class="fw-700">Aisha Osei</span></td>
+                <td style="color:var(--text-2);font-size:12px;">aosei@hotmail.com</td>
+                <td><span class="badge badge-neutral">Web</span></td>
+                <td>1</td>
+                <td>$449.00</td>
+                <td style="color:var(--green);">Free</td>
+                <td class="fw-700">$449.00</td>
+                <td><span class="badge badge-red">Returned</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 10, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10475</span></td>
+                <td><span class="fw-700">James Lindqvist</span></td>
+                <td style="color:var(--text-2);font-size:12px;">j.lindqvist@icloud.com</td>
+                <td><span class="badge badge-neutral">Web</span></td>
+                <td>2</td>
+                <td>$389.00</td>
+                <td>$10.00</td>
+                <td class="fw-700">$399.00</td>
+                <td><span class="badge badge-neutral">Shipped</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Mar 10, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10474</span></td>
+                <td><span class="fw-700">Natalie Cho</span></td>
+                <td style="color:var(--text-2);font-size:12px;">natcho@gmail.com</td>
+                <td><span class="badge badge-neutral" style="background:rgba(76,175,130,0.1);color:var(--green);border-color:rgba(76,175,130,0.25);">iOS App</span></td>
+                <td>3</td>
+                <td>$512.00</td>
+                <td style="color:var(--green);">Free</td>
+                <td class="fw-700">$512.00</td>
+                <td><span class="badge badge-green">Delivered</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 09, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10473</span></td>
+                <td><span class="fw-700">Rafael Mendez</span></td>
+                <td style="color:var(--text-2);font-size:12px;">rmendez@companyco.com</td>
+                <td><span class="badge badge-neutral" style="background:rgba(230,57,70,0.1);color:var(--red);border-color:rgba(230,57,70,0.25);">Wholesale</span></td>
+                <td>24</td>
+                <td>$4,200.00</td>
+                <td style="color:var(--green);">Free</td>
+                <td class="fw-700">$4,200.00</td>
+                <td><span class="badge badge-green">Delivered</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Mar 09, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10472</span></td>
+                <td><span class="fw-700">Simone Bertrand</span></td>
+                <td style="color:var(--text-2);font-size:12px;">sbertrand@outlook.fr</td>
+                <td><span class="badge badge-neutral">Web</span></td>
+                <td>1</td>
+                <td>$189.00</td>
+                <td>$22.00</td>
+                <td class="fw-700">$211.00</td>
+                <td><span class="badge badge-yellow">Processing</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 08, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:12px;color:var(--text-2);">#CR-10471</span></td>
+                <td><span class="fw-700">Kenji Watanabe</span></td>
+                <td style="color:var(--text-2);font-size:12px;">kw@designstudio.jp</td>
+                <td><span class="badge badge-neutral" style="background:rgba(240,192,64,0.1);color:var(--yellow);border-color:rgba(240,192,64,0.25);">Android</span></td>
+                <td>2</td>
+                <td>$376.00</td>
+                <td>$28.00</td>
+                <td class="fw-700">$404.00</td>
+                <td><span class="badge badge-neutral">Shipped</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Mar 08, 2024</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <!-- Order Detail Panel -->
+  <div class="order-detail-panel hidden" id="order-detail">
+    <div class="detail-header">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">Order Detail</div>
+        <div style="font-size:16px;font-weight:900;letter-spacing:-0.02em;">#CR-10482</div>
+      </div>
+      <button onclick="document.getElementById('order-detail').classList.add('hidden')" class="btn btn-ghost btn-sm">Close ✕</button>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">Customer</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:2px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:white;flex-shrink:0;">SK</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;">Sarah Kimura</div>
+          <div style="font-size:12px;color:var(--text-2);">s.kimura@gmail.com</div>
+          <div style="font-size:11px;color:var(--text-2);margin-top:2px;">Member since Jan 2022 · 14 orders</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">Items Ordered</div>
+      <div class="detail-item">
+        <div>
+          <div style="font-size:13px;font-weight:700;">Arc'teryx Beta AR Jacket</div>
+          <div style="font-size:11px;color:var(--text-2);">Men's Medium · Pilot (Grey) · SKU: ARC-BAR-MM</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:13px;font-weight:700;">$749.00</div>
+          <div style="font-size:11px;color:var(--text-2);">Qty: 1</div>
+        </div>
+      </div>
+      <div style="padding-top:12px;display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);">
+        <span>Subtotal</span><span>$749.00</span>
+      </div>
+      <div style="padding-top:6px;display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);">
+        <span>Shipping (Free over $200)</span><span style="color:var(--green);">$0.00</span>
+      </div>
+      <div style="padding-top:6px;display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);">
+        <span>Tax (CA 8.25%)</span><span>$61.80</span>
+      </div>
+      <div style="padding-top:10px;border-top:1px solid var(--border);margin-top:6px;display:flex;justify-content:space-between;font-size:14px;font-weight:900;">
+        <span>Total</span><span>$810.80</span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">Shipping Address</div>
+      <div style="font-size:13px;line-height:1.7;">
+        Sarah Kimura<br/>
+        4821 Treeline Ave, Apt 3B<br/>
+        Boulder, CO 80302<br/>
+        United States
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;font-size:11px;">
+        <span style="font-weight:700;">Carrier:</span> <span style="color:var(--text-2);">UPS Ground</span>
+        <span style="margin-left:16px;font-weight:700;">Tracking:</span>
+        <span style="color:var(--green);font-family:monospace;">1Z999AA10123456784</span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">Order Timeline</div>
+      <div class="timeline-item">
+        <div class="timeline-line">
+          <div class="timeline-dot" style="background:var(--green);"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;">Delivered</div>
+          <div style="font-size:11px;color:var(--text-2);">Mar 12, 2024 · 10:14 AM</div>
+          <div style="font-size:11px;color:var(--text-2);margin-top:2px;">Left at front door per customer request</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-line">
+          <div class="timeline-dot" style="background:var(--text-2);"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;">Out for Delivery</div>
+          <div style="font-size:11px;color:var(--text-2);">Mar 12, 2024 · 7:02 AM</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-line">
+          <div class="timeline-dot" style="background:var(--text-2);"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;">In Transit — Denver Hub</div>
+          <div style="font-size:11px;color:var(--text-2);">Mar 11, 2024 · 11:38 PM</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-line">
+          <div class="timeline-dot" style="background:var(--text-2);"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;">Shipped from Reno, NV</div>
+          <div style="font-size:11px;color:var(--text-2);">Mar 11, 2024 · 2:22 PM</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-line">
+          <div class="timeline-dot" style="background:var(--border);"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;">Order Placed</div>
+          <div style="font-size:11px;color:var(--text-2);">Mar 11, 2024 · 9:47 AM · Web</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" style="flex:1;">Print Label</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1;">Issue Refund</button>
+        <button class="btn btn-primary btn-sm" style="flex:1;">Contact Customer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+  </script>
+</body>
+</html>

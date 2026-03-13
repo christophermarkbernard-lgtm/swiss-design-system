@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Errors — Axon Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Error frequency chart */
+    .err-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 80px;
+    }
+    .err-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 1px;
+    }
+    .err-bar {
+      border-radius: 1px 1px 0 0;
+      min-height: 2px;
+      transition: opacity 120ms;
+    }
+    .err-bar:hover { opacity: 0.7; }
+    .err-bar.e5xx { background: var(--red); }
+    .err-bar.e4xx { background: var(--yellow); }
+    .err-bar.timeout { background: var(--border); }
+
+    .err-chart-labels {
+      display: flex;
+      gap: 5px;
+      padding: 4px 0 0;
+    }
+    .err-chart-label {
+      flex: 1;
+      text-align: center;
+      font-size: 9px;
+      color: var(--text-2);
+      font-weight: 700;
+    }
+
+    /* Log entries */
+    .log-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-ts {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--text-2);
+      flex-shrink: 0;
+      width: 140px;
+    }
+    .log-service {
+      color: var(--text-2);
+      flex-shrink: 0;
+      width: 110px;
+      font-size: 11px;
+    }
+    .log-message {
+      color: var(--text-1);
+      flex: 1;
+      line-height: 1.5;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 11px;
+    }
+
+    /* Chart legend */
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Axon</div>
+      <div class="sidebar-logo-sub">API Infrastructure</div>
+    </div>
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Console</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Overview
+      </a>
+      <a href="endpoints.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 4h12M1 7h8M1 10h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Endpoints
+      </a>
+      <a href="errors.html" class="sidebar-item active">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3.5M7 9.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Errors
+      </a>
+      <a href="deployments.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Deployments
+      </a>
+      <a href="performance.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 10L4 7l2.5 2.5L9 5l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Performance
+      </a>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Config</div>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 3V2a1 1 0 011-1h4a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        API Keys
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Team
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">RK</div>
+        <div>
+          <div class="sidebar-user-name">Rohan Kapoor</div>
+          <div class="sidebar-user-role">Platform Engineer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Error Tracking
+        <span class="badge badge-red">34 Open Issues</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm">Resolve All</button>
+        <button class="btn btn-ghost btn-sm">Export</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI Row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Errors (24h)</div>
+          <div class="stat-value accent">1,842</div>
+          <div class="stat-delta up">↓ 214 vs yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Error Rate</div>
+          <div class="stat-value green">0.12%</div>
+          <div class="stat-delta up">↓ 0.04pp vs yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unique Issues</div>
+          <div class="stat-value yellow">34</div>
+          <div class="stat-delta down">↑ 4 new today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">MTTR</div>
+          <div class="stat-value">4.2<span style="font-size:18px;font-weight:700;">min</span></div>
+          <div class="stat-delta up">↓ 1.1min vs last week</div>
+        </div>
+      </div>
+
+      <!-- Error frequency chart -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-header">
+          <h2 class="panel-title">Error Frequency — Last 24 Hours</h2>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--red);"></div>5xx</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--yellow);"></div>4xx</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--border);"></div>Timeout</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="err-chart" id="err-chart"></div>
+          <div class="err-chart-labels" id="err-labels"></div>
+        </div>
+      </div>
+
+      <!-- Error groups + Recent log -->
+      <div class="grid-2" style="margin-bottom:0;align-items:start;">
+
+        <!-- Error groups table -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Error Groups</h2>
+            <div style="display:flex;gap:8px;">
+              <span class="badge badge-red">21 Open</span>
+              <span class="badge badge-neutral">13 Resolved</span>
+            </div>
+          </div>
+          <div class="panel-body-flush">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Service</th>
+                  <th>Count</th>
+                  <th>Last Seen</th>
+                  <th>Status</th>
+                  <th>Owner</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">429 Too Many Requests</div>
+                    <div style="font-size:11px;color:var(--text-2);">Rate limit exceeded for tenant</div>
+                  </td>
+                  <td style="color:var(--text-2);">Rate Limiter</td>
+                  <td style="font-weight:700;color:var(--red);">648</td>
+                  <td style="color:var(--text-2);">2 min ago</td>
+                  <td><span class="badge badge-red">Open</span></td>
+                  <td style="color:var(--text-2);">RK</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">503 Service Unavailable</div>
+                    <div style="font-size:11px;color:var(--text-2);">Webhooks Relay circuit open</div>
+                  </td>
+                  <td style="color:var(--text-2);">Webhooks Relay</td>
+                  <td style="font-weight:700;color:var(--red);">312</td>
+                  <td style="color:var(--text-2);">8 min ago</td>
+                  <td><span class="badge badge-red">Open</span></td>
+                  <td style="color:var(--text-2);">—</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">500 Internal Server Error</div>
+                    <div style="font-size:11px;color:var(--text-2);">Unhandled exception in pipeline eval</div>
+                  </td>
+                  <td style="color:var(--text-2);">Pipeline Engine</td>
+                  <td style="font-weight:700;color:var(--yellow);">187</td>
+                  <td style="color:var(--text-2);">34 min ago</td>
+                  <td><span class="badge badge-red">Open</span></td>
+                  <td style="color:var(--text-2);">DW</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">408 Request Timeout</div>
+                    <div style="font-size:11px;color:var(--text-2);">Upstream DB query &gt;30s</div>
+                  </td>
+                  <td style="color:var(--text-2);">Event Router</td>
+                  <td style="font-weight:700;color:var(--yellow);">142</td>
+                  <td style="color:var(--text-2);">1 hr ago</td>
+                  <td><span class="badge badge-yellow">Ignored</span></td>
+                  <td style="color:var(--text-2);">RK</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">401 Unauthorized</div>
+                    <div style="font-size:11px;color:var(--text-2);">Expired JWT not refreshed by client</div>
+                  </td>
+                  <td style="color:var(--text-2);">Auth Service</td>
+                  <td style="font-weight:700;color:var(--yellow);">118</td>
+                  <td style="color:var(--text-2);">12 min ago</td>
+                  <td><span class="badge badge-red">Open</span></td>
+                  <td style="color:var(--text-2);">—</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">400 Bad Request</div>
+                    <div style="font-size:11px;color:var(--text-2);">Schema validation failed — missing field</div>
+                  </td>
+                  <td style="color:var(--text-2);">API Gateway</td>
+                  <td style="font-weight:700;">94</td>
+                  <td style="color:var(--text-2);">5 min ago</td>
+                  <td><span class="badge badge-red">Open</span></td>
+                  <td style="color:var(--text-2);">—</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">500 Internal Server Error</div>
+                    <div style="font-size:11px;color:var(--text-2);">Redis connection pool exhausted</div>
+                  </td>
+                  <td style="color:var(--text-2);">Rate Limiter</td>
+                  <td style="font-weight:700;">78</td>
+                  <td style="color:var(--text-2);">3 hr ago</td>
+                  <td><span class="badge badge-green">Resolved</span></td>
+                  <td style="color:var(--text-2);">SK</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:700;font-size:12px;margin-bottom:2px;">504 Gateway Timeout</div>
+                    <div style="font-size:11px;color:var(--text-2);">Pipeline stage 3 non-responsive</div>
+                  </td>
+                  <td style="color:var(--text-2);">Pipeline Engine</td>
+                  <td style="font-weight:700;">67</td>
+                  <td style="color:var(--text-2);">6 hr ago</td>
+                  <td><span class="badge badge-green">Resolved</span></td>
+                  <td style="color:var(--text-2);">DW</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent error log -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Recent Error Log</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn btn-ghost btn-sm">Pause</button>
+              <span style="font-size:11px;color:var(--green);font-weight:700;letter-spacing:0.04em;">● LIVE</span>
+            </div>
+          </div>
+          <div class="panel-body" style="padding:8px 20px;">
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:47:02</span>
+              <span class="badge badge-red" style="flex-shrink:0;">ERROR</span>
+              <span class="log-service">rate-limiter</span>
+              <span class="log-message">429 Too Many Requests — tenant axn-4821 burst limit exceeded (2,341/2,000)</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:46:58</span>
+              <span class="badge badge-yellow" style="flex-shrink:0;">WARN</span>
+              <span class="log-service">webhooks-relay</span>
+              <span class="log-message">Retry attempt 3/5 for delivery to https://hooks.acme.io/v1/events — status 503</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:46:44</span>
+              <span class="badge badge-red" style="flex-shrink:0;">ERROR</span>
+              <span class="log-service">pipeline-engine</span>
+              <span class="log-message">Unhandled exception: NullReferenceException in TransformStage.Evaluate() at line 412</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:46:31</span>
+              <span class="badge badge-neutral" style="flex-shrink:0;">INFO</span>
+              <span class="log-service">api-gateway</span>
+              <span class="log-message">Health check passed — all upstream services responding within SLA</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:46:19</span>
+              <span class="badge badge-red" style="flex-shrink:0;">ERROR</span>
+              <span class="log-service">auth-service</span>
+              <span class="log-message">401 Unauthorized — JWT exp claim in past: exp=1741772400, now=1741773979</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:46:07</span>
+              <span class="badge badge-yellow" style="flex-shrink:0;">WARN</span>
+              <span class="log-service">event-router</span>
+              <span class="log-message">Consumer lag on partition 7 exceeds 10,000 messages — current offset delta: 14,821</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:45:52</span>
+              <span class="badge badge-red" style="flex-shrink:0;">ERROR</span>
+              <span class="log-service">webhooks-relay</span>
+              <span class="log-message">Circuit breaker OPEN for target https://api.globex.io/webhook — failures: 5/5</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:45:38</span>
+              <span class="badge badge-neutral" style="flex-shrink:0;">INFO</span>
+              <span class="log-service">schema-registry</span>
+              <span class="log-message">Schema axn.events.user_signup_v3 registered successfully — fingerprint: 8f3a2c1d</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:45:21</span>
+              <span class="badge badge-red" style="flex-shrink:0;">ERROR</span>
+              <span class="log-service">rate-limiter</span>
+              <span class="log-message">429 Too Many Requests — tenant axn-0392 quota exhausted: 50,000/50,000 RPM</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-ts">2026-03-12 14:45:09</span>
+              <span class="badge badge-yellow" style="flex-shrink:0;">WARN</span>
+              <span class="log-service">pipeline-engine</span>
+              <span class="log-message">Stage execution slow: TransformStage took 4,812ms (threshold: 3,000ms)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+
+    // Error frequency chart
+    const e5xx     = [4,2,3,2,1,2,1,3,8,12,9,14,10,8,11,16,13,9,12,14,11,9,10,8];
+    const e4xx     = [18,12,10,9,8,9,8,14,22,28,24,31,26,22,27,34,29,21,25,30,27,22,24,20];
+    const etimeout = [2,1,1,1,1,1,0,2,3,4,3,5,3,3,4,6,5,3,4,5,4,3,3,3];
+    const maxErr = Math.max(...e5xx.map((v,i)=>v+e4xx[i]+etimeout[i]));
+    const chartEl = document.getElementById('err-chart');
+    const labelsEl = document.getElementById('err-labels');
+    const hours = ['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
+    e5xx.forEach((s, i) => {
+      const h5 = Math.max(2, Math.round((e5xx[i] / maxErr) * 70));
+      const h4 = Math.max(2, Math.round((e4xx[i] / maxErr) * 70));
+      const ht = Math.max(2, Math.round((etimeout[i] / maxErr) * 70));
+      const col = document.createElement('div');
+      col.className = 'err-col';
+      col.innerHTML = `<div class="err-bar e5xx" style="height:${h5}px;"></div><div class="err-bar e4xx" style="height:${h4}px;"></div><div class="err-bar timeout" style="height:${ht}px;"></div>`;
+      chartEl.appendChild(col);
+      const lbl = document.createElement('div');
+      lbl.className = 'err-chart-label';
+      lbl.textContent = (i % 4 === 0) ? hours[i] : '';
+      labelsEl.appendChild(lbl);
+    });
+  </script>
+</body>
+</html>

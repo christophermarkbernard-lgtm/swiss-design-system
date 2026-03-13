@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Endpoints — Axon Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Method filter buttons */
+    .method-filter {
+      display: flex;
+      gap: 2px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 2px;
+    }
+    .method-filter-btn {
+      background: transparent;
+      border: none;
+      border-radius: 1px;
+      padding: 4px 10px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: background 120ms, color 120ms;
+    }
+    .method-filter-btn.active {
+      background: var(--surface-1);
+      color: var(--text-1);
+      border: 1px solid var(--border);
+    }
+    .method-filter-btn:hover:not(.active) { color: var(--text-1); }
+
+    /* Endpoint detail panel */
+    .detail-panel {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 20px;
+    }
+    .detail-section {
+      margin-bottom: 20px;
+    }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+    .schema-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--text-1);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .schema-key { color: var(--yellow); }
+    .schema-type { color: var(--green); }
+    .schema-string { color: var(--red); }
+    .schema-comment { color: var(--text-2); }
+
+    .rate-limit-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .rate-limit-item:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Axon</div>
+      <div class="sidebar-logo-sub">API Infrastructure</div>
+    </div>
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Console</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Overview
+      </a>
+      <a href="endpoints.html" class="sidebar-item active">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 4h12M1 7h8M1 10h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Endpoints
+      </a>
+      <a href="errors.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3.5M7 9.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Errors
+      </a>
+      <a href="deployments.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Deployments
+      </a>
+      <a href="performance.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 10L4 7l2.5 2.5L9 5l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Performance
+      </a>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Config</div>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 3V2a1 1 0 011-1h4a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        API Keys
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Team
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">RK</div>
+        <div>
+          <div class="sidebar-user-name">Rohan Kapoor</div>
+          <div class="sidebar-user-role">Platform Engineer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Endpoints
+        <span class="topbar-breadcrumb">/ API Registry</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm">Export CSV</button>
+        <button class="btn btn-primary btn-sm">+ New Endpoint</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI Row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Endpoints</div>
+          <div class="stat-value">284</div>
+          <div class="stat-delta up">↑ 12 this sprint</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active</div>
+          <div class="stat-value green">271</div>
+          <div class="stat-delta" style="color:var(--text-2);">95.4% of total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Deprecated</div>
+          <div class="stat-value yellow">13</div>
+          <div class="stat-delta down">↑ 3 this sprint</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Response</div>
+          <div class="stat-value">89ms</div>
+          <div class="stat-delta up">↓ 4ms vs last week</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;">
+        <input type="text" class="search-input" placeholder="Search endpoints…" style="width:280px;" />
+        <div class="method-filter">
+          <button class="method-filter-btn active">ALL</button>
+          <button class="method-filter-btn">GET</button>
+          <button class="method-filter-btn">POST</button>
+          <button class="method-filter-btn">PUT</button>
+          <button class="method-filter-btn">DELETE</button>
+        </div>
+        <div class="method-filter">
+          <button class="method-filter-btn active">ALL VER</button>
+          <button class="method-filter-btn">V1</button>
+          <button class="method-filter-btn">V2</button>
+          <button class="method-filter-btn">V3</button>
+        </div>
+        <span style="font-size:11px;color:var(--text-2);margin-left:auto;font-weight:700;letter-spacing:0.04em;">Showing 12 of 284</span>
+      </div>
+
+      <!-- Main layout: table + detail panel -->
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start;">
+
+        <!-- Endpoints table -->
+        <div class="panel">
+          <div class="panel-body-flush">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Path</th>
+                  <th>Ver</th>
+                  <th>Req / day</th>
+                  <th>Avg</th>
+                  <th>P99</th>
+                  <th>Error %</th>
+                  <th>Auth</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:var(--surface-2);">
+                  <td><span class="badge badge-green">GET</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v2/events</td>
+                  <td><span class="badge badge-neutral">v2</span></td>
+                  <td style="font-weight:700;">1,732,736</td>
+                  <td>18ms</td>
+                  <td>67ms</td>
+                  <td style="color:var(--green);">0.04%</td>
+                  <td style="color:var(--text-2);">JWT</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-yellow">POST</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v2/events/ingest</td>
+                  <td><span class="badge badge-neutral">v2</span></td>
+                  <td style="font-weight:700;">1,284,480</td>
+                  <td>32ms</td>
+                  <td>118ms</td>
+                  <td style="color:var(--green);">0.09%</td>
+                  <td style="color:var(--text-2);">API Key</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-green">GET</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v3/pipelines</td>
+                  <td><span class="badge badge-neutral">v3</span></td>
+                  <td style="font-weight:700;">923,040</td>
+                  <td>24ms</td>
+                  <td>142ms</td>
+                  <td style="color:var(--yellow);">0.21%</td>
+                  <td style="color:var(--text-2);">JWT</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-green">GET</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v2/users/{id}</td>
+                  <td><span class="badge badge-neutral">v2</span></td>
+                  <td style="font-weight:700;">835,200</td>
+                  <td>14ms</td>
+                  <td>58ms</td>
+                  <td style="color:var(--green);">0.03%</td>
+                  <td style="color:var(--text-2);">JWT</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-yellow">POST</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v3/webhooks</td>
+                  <td><span class="badge badge-neutral">v3</span></td>
+                  <td style="font-weight:700;">501,120</td>
+                  <td>44ms</td>
+                  <td>289ms</td>
+                  <td style="color:var(--red);">0.84%</td>
+                  <td style="color:var(--text-2);">API Key</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-green">GET</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v3/schemas</td>
+                  <td><span class="badge badge-neutral">v3</span></td>
+                  <td style="font-weight:700;">412,800</td>
+                  <td>11ms</td>
+                  <td>44ms</td>
+                  <td style="color:var(--green);">0.01%</td>
+                  <td style="color:var(--text-2);">API Key</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-yellow">PUT</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v3/pipelines/{id}</td>
+                  <td><span class="badge badge-neutral">v3</span></td>
+                  <td style="font-weight:700;">288,640</td>
+                  <td>39ms</td>
+                  <td>163ms</td>
+                  <td style="color:var(--green);">0.11%</td>
+                  <td style="color:var(--text-2);">JWT</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-red">DELETE</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v2/streams/{id}</td>
+                  <td><span class="badge badge-neutral">v2</span></td>
+                  <td style="font-weight:700;">171,360</td>
+                  <td>28ms</td>
+                  <td>94ms</td>
+                  <td style="color:var(--green);">0.07%</td>
+                  <td style="color:var(--text-2);">JWT</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-yellow">POST</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v3/auth/token</td>
+                  <td><span class="badge badge-neutral">v3</span></td>
+                  <td style="font-weight:700;">148,320</td>
+                  <td>62ms</td>
+                  <td>214ms</td>
+                  <td style="color:var(--yellow);">0.38%</td>
+                  <td style="color:var(--text-2);">Public</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-green">GET</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v2/tenants/{id}/usage</td>
+                  <td><span class="badge badge-neutral">v2</span></td>
+                  <td style="font-weight:700;">87,840</td>
+                  <td>48ms</td>
+                  <td>198ms</td>
+                  <td style="color:var(--green);">0.06%</td>
+                  <td style="color:var(--text-2);">JWT</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-green">GET</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v1/events</td>
+                  <td><span class="badge badge-neutral">v1</span></td>
+                  <td style="font-weight:700;">24,480</td>
+                  <td>82ms</td>
+                  <td>341ms</td>
+                  <td style="color:var(--yellow);">0.44%</td>
+                  <td style="color:var(--text-2);">API Key</td>
+                  <td><span class="badge badge-yellow">Deprecated</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-yellow">POST</span></td>
+                  <td class="font-mono" style="font-size:12px;">/api/v1/ingest</td>
+                  <td><span class="badge badge-neutral">v1</span></td>
+                  <td style="font-weight:700;">8,160</td>
+                  <td>104ms</td>
+                  <td>489ms</td>
+                  <td style="color:var(--red);">1.12%</td>
+                  <td style="color:var(--text-2);">API Key</td>
+                  <td><span class="badge badge-yellow">Deprecated</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Endpoint detail panel -->
+        <div>
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span class="badge badge-yellow">POST</span>
+              <span class="font-mono fw-700" style="font-size:13px;">/api/v2/events/ingest</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-2);">v2 · API Key · Active</div>
+          </div>
+
+          <div class="detail-panel">
+            <div class="detail-section">
+              <div class="detail-section-label">Description</div>
+              <div style="font-size:12px;line-height:1.6;color:var(--text-1);">Ingest a batch of structured event objects into the Axon pipeline. Supports up to 500 events per request. Events are validated against the registered schema and routed to downstream consumers.</div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-label">Request Schema</div>
+              <div class="schema-block"><span class="schema-comment">// POST body (application/json)</span>
+<span class="schema-key">{</span>
+  <span class="schema-string">"stream_id"</span>: <span class="schema-type">string</span>,   <span class="schema-comment">// required</span>
+  <span class="schema-string">"events"</span>: <span class="schema-type">array</span> <span class="schema-key">[</span>
+    <span class="schema-key">{</span>
+      <span class="schema-string">"type"</span>:       <span class="schema-type">string</span>,
+      <span class="schema-string">"timestamp"</span>:  <span class="schema-type">iso8601</span>,
+      <span class="schema-string">"payload"</span>:    <span class="schema-type">object</span>
+    <span class="schema-key">}</span>
+  <span class="schema-key">]</span>,
+  <span class="schema-string">"options"</span>: <span class="schema-key">{</span>
+    <span class="schema-string">"dedup"</span>:     <span class="schema-type">boolean</span>,
+    <span class="schema-string">"validate"</span>:  <span class="schema-type">boolean</span>
+  <span class="schema-key">}</span>
+<span class="schema-key">}</span></div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-label">Response Schema</div>
+              <div class="schema-block"><span class="schema-comment">// 200 OK</span>
+<span class="schema-key">{</span>
+  <span class="schema-string">"batch_id"</span>:   <span class="schema-type">uuid</span>,
+  <span class="schema-string">"accepted"</span>:   <span class="schema-type">integer</span>,
+  <span class="schema-string">"rejected"</span>:   <span class="schema-type">integer</span>,
+  <span class="schema-string">"errors"</span>:     <span class="schema-type">array</span>
+<span class="schema-key">}</span></div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-label">Rate Limits</div>
+              <div>
+                <div class="rate-limit-item">
+                  <span style="color:var(--text-2);">Requests / min</span>
+                  <span class="fw-700">1,000</span>
+                </div>
+                <div class="rate-limit-item">
+                  <span style="color:var(--text-2);">Payload size</span>
+                  <span class="fw-700">5 MB</span>
+                </div>
+                <div class="rate-limit-item">
+                  <span style="color:var(--text-2);">Events per batch</span>
+                  <span class="fw-700">500</span>
+                </div>
+                <div class="rate-limit-item">
+                  <span style="color:var(--text-2);">Burst limit</span>
+                  <span class="fw-700">2,000</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-section-label">Recent Errors (24h)</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:2px;padding:8px 10px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span class="badge badge-red">429</span>
+                    <span class="font-mono" style="font-size:10px;color:var(--text-2);">09:14:33</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-2);">Rate limit exceeded — tenant axn-4821</div>
+                </div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:2px;padding:8px 10px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span class="badge badge-red">400</span>
+                    <span class="font-mono" style="font-size:10px;color:var(--text-2);">11:02:17</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-2);">Schema validation failed — missing field "timestamp"</div>
+                </div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:2px;padding:8px 10px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span class="badge badge-red">500</span>
+                    <span class="font-mono" style="font-size:10px;color:var(--text-2);">14:38:51</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-2);">Upstream pipeline timeout after 30s</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+    document.querySelectorAll('.method-filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.closest('.method-filter').querySelectorAll('.method-filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

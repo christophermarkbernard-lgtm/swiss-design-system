@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance — Axon Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    /* Response time chart — horizontal bars by endpoint */
+    .rtt-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rtt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .rtt-label {
+      font-size: 11px;
+      color: var(--text-2);
+      width: 200px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+    .rtt-track {
+      flex: 1;
+      height: 14px;
+      background: var(--surface-2);
+      border-radius: 1px;
+      overflow: hidden;
+      display: flex;
+      gap: 1px;
+    }
+    .rtt-p50 {
+      background: var(--green);
+      height: 100%;
+      border-radius: 1px 0 0 1px;
+    }
+    .rtt-p99 {
+      background: var(--yellow);
+      height: 100%;
+    }
+    .rtt-p999 {
+      background: var(--red);
+      height: 100%;
+      border-radius: 0 1px 1px 0;
+    }
+    .rtt-values {
+      display: flex;
+      gap: 8px;
+      width: 180px;
+      flex-shrink: 0;
+    }
+    .rtt-val {
+      font-size: 11px;
+      font-weight: 700;
+      width: 54px;
+      text-align: right;
+    }
+    .rtt-val.p50 { color: var(--green); }
+    .rtt-val.p99 { color: var(--yellow); }
+    .rtt-val.p999 { color: var(--red); }
+
+    /* Infra bar */
+    .infra-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .infra-row:last-child { border-bottom: none; }
+    .infra-name {
+      font-size: 12px;
+      font-weight: 700;
+      width: 130px;
+      flex-shrink: 0;
+    }
+    .infra-track {
+      flex: 1;
+      height: 8px;
+      background: var(--surface-2);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .infra-fill {
+      height: 100%;
+      border-radius: 1px;
+      background: var(--green);
+    }
+    .infra-fill.warn { background: var(--yellow); }
+    .infra-fill.crit { background: var(--red); }
+    .infra-pct {
+      font-size: 12px;
+      font-weight: 700;
+      width: 36px;
+      text-align: right;
+    }
+
+    /* Cache stat items */
+    .cache-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cache-row:last-child { border-bottom: none; }
+
+    /* Chart legend */
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Axon</div>
+      <div class="sidebar-logo-sub">API Infrastructure</div>
+    </div>
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Console</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Overview
+      </a>
+      <a href="endpoints.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 4h12M1 7h8M1 10h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Endpoints
+      </a>
+      <a href="errors.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3.5M7 9.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Errors
+      </a>
+      <a href="deployments.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Deployments
+      </a>
+      <a href="performance.html" class="sidebar-item active">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 10L4 7l2.5 2.5L9 5l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Performance
+      </a>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Config</div>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 3V2a1 1 0 011-1h4a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        API Keys
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Team
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">RK</div>
+        <div>
+          <div class="sidebar-user-name">Rohan Kapoor</div>
+          <div class="sidebar-user-role">Platform Engineer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Performance Metrics
+        <span class="badge badge-green">Production</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm">Set Alerts</button>
+        <button class="btn btn-ghost btn-sm">Export</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI Row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Avg Response</div>
+          <div class="stat-value green">89ms</div>
+          <div class="stat-delta up">↓ 4ms vs last week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">P99 Latency</div>
+          <div class="stat-value yellow">142ms</div>
+          <div class="stat-delta down">↑ 18ms vs yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Throughput</div>
+          <div class="stat-value">4,284<span style="font-size:14px;font-weight:700;"> rqm</span></div>
+          <div class="stat-delta up">↑ 8% vs yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cache Hit Rate</div>
+          <div class="stat-value green">84%</div>
+          <div class="stat-delta up">↑ 2pp vs last week</div>
+        </div>
+      </div>
+
+      <!-- Response time chart -->
+      <div class="panel" style="margin-bottom:24px;">
+        <div class="panel-header">
+          <h2 class="panel-title">Response Time by Endpoint — Top 10 Slowest</h2>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--green);"></div>P50</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--yellow);"></div>P99</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:var(--red);"></div>P99.9</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;gap:12px;margin-bottom:10px;padding-left:212px;">
+            <span style="flex:1;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);">0ms</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);">250ms</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);">500ms</span>
+          </div>
+          <!-- max scale = 500ms -->
+          <div class="rtt-chart">
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v1/ingest</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:20.8%;"></div>
+                <div class="rtt-p99" style="width:77.8%;"></div>
+                <div class="rtt-p999" style="width:1.4%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">104ms</div>
+                <div class="rtt-val p99">489ms</div>
+                <div class="rtt-val p999">—</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v3/webhooks</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:8.8%;"></div>
+                <div class="rtt-p99" style="width:49.8%;"></div>
+                <div class="rtt-p999" style="width:11%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">44ms</div>
+                <div class="rtt-val p99">289ms</div>
+                <div class="rtt-val p999">344ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v3/auth/token</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:12.4%;"></div>
+                <div class="rtt-p99" style="width:30.4%;"></div>
+                <div class="rtt-p999" style="width:12%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">62ms</div>
+                <div class="rtt-val p99">214ms</div>
+                <div class="rtt-val p999">274ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v2/tenants/{id}/usage</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:9.6%;"></div>
+                <div class="rtt-p99" style="width:29.6%;"></div>
+                <div class="rtt-p999" style="width:10.6%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">48ms</div>
+                <div class="rtt-val p99">198ms</div>
+                <div class="rtt-val p999">251ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v1/events</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:16.4%;"></div>
+                <div class="rtt-p99" style="width:52.2%;"></div>
+                <div class="rtt-p999" style="width:5.4%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">82ms</div>
+                <div class="rtt-val p99">341ms</div>
+                <div class="rtt-val p999">368ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v3/pipelines/{id}</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:7.8%;"></div>
+                <div class="rtt-p99" style="width:24.8%;"></div>
+                <div class="rtt-p999" style="width:8.2%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">39ms</div>
+                <div class="rtt-val p99">163ms</div>
+                <div class="rtt-val p999">204ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v3/pipelines</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:4.8%;"></div>
+                <div class="rtt-p99" style="width:23.6%;"></div>
+                <div class="rtt-p999" style="width:7.8%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">24ms</div>
+                <div class="rtt-val p99">142ms</div>
+                <div class="rtt-val p999">181ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v2/events/ingest</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:6.4%;"></div>
+                <div class="rtt-p99" style="width:17.2%;"></div>
+                <div class="rtt-p999" style="width:6%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">32ms</div>
+                <div class="rtt-val p99">118ms</div>
+                <div class="rtt-val p999">148ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v2/streams/{id}</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:5.6%;"></div>
+                <div class="rtt-p99" style="width:13.2%;"></div>
+                <div class="rtt-p999" style="width:4.8%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">28ms</div>
+                <div class="rtt-val p99">94ms</div>
+                <div class="rtt-val p999">118ms</div>
+              </div>
+            </div>
+            <div class="rtt-row">
+              <div class="rtt-label">/api/v2/events</div>
+              <div class="rtt-track">
+                <div class="rtt-p50" style="width:3.6%;"></div>
+                <div class="rtt-p99" style="width:10%;"></div>
+                <div class="rtt-p999" style="width:3.6%;"></div>
+              </div>
+              <div class="rtt-values">
+                <div class="rtt-val p50">18ms</div>
+                <div class="rtt-val p99">67ms</div>
+                <div class="rtt-val p999">85ms</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latency percentiles + Infrastructure -->
+      <div class="grid-2" style="align-items:start;">
+
+        <!-- Latency percentile table -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Latency Percentiles by Service</h2>
+            <span style="font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:0.04em;">Last 24h</span>
+          </div>
+          <div class="panel-body-flush">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>P50</th>
+                  <th>P75</th>
+                  <th>P90</th>
+                  <th>P95</th>
+                  <th>P99</th>
+                  <th>P99.9</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="fw-700">API Gateway</td>
+                  <td>18ms</td>
+                  <td>29ms</td>
+                  <td>44ms</td>
+                  <td>54ms</td>
+                  <td style="color:var(--green);">67ms</td>
+                  <td style="color:var(--green);">85ms</td>
+                </tr>
+                <tr>
+                  <td class="fw-700">Event Router</td>
+                  <td>22ms</td>
+                  <td>38ms</td>
+                  <td>64ms</td>
+                  <td>89ms</td>
+                  <td style="color:var(--yellow);">128ms</td>
+                  <td style="color:var(--yellow);">192ms</td>
+                </tr>
+                <tr>
+                  <td class="fw-700">Auth Service</td>
+                  <td>31ms</td>
+                  <td>52ms</td>
+                  <td>88ms</td>
+                  <td>128ms</td>
+                  <td style="color:var(--yellow);">214ms</td>
+                  <td style="color:var(--yellow);">274ms</td>
+                </tr>
+                <tr>
+                  <td class="fw-700">Pipeline Engine</td>
+                  <td>44ms</td>
+                  <td>72ms</td>
+                  <td>108ms</td>
+                  <td>132ms</td>
+                  <td style="color:var(--yellow);">163ms</td>
+                  <td style="color:var(--red);">411ms</td>
+                </tr>
+                <tr>
+                  <td class="fw-700">Webhooks Relay</td>
+                  <td>58ms</td>
+                  <td>98ms</td>
+                  <td>164ms</td>
+                  <td>218ms</td>
+                  <td style="color:var(--red);">289ms</td>
+                  <td style="color:var(--red);">452ms</td>
+                </tr>
+                <tr>
+                  <td class="fw-700">Schema Registry</td>
+                  <td>8ms</td>
+                  <td>12ms</td>
+                  <td>18ms</td>
+                  <td>24ms</td>
+                  <td style="color:var(--green);">44ms</td>
+                  <td style="color:var(--green);">62ms</td>
+                </tr>
+                <tr>
+                  <td class="fw-700">Rate Limiter</td>
+                  <td>4ms</td>
+                  <td>6ms</td>
+                  <td>9ms</td>
+                  <td>12ms</td>
+                  <td style="color:var(--green);">18ms</td>
+                  <td style="color:var(--green);">24ms</td>
+                </tr>
+                <tr>
+                  <td class="fw-700">Billing API</td>
+                  <td>62ms</td>
+                  <td>88ms</td>
+                  <td>124ms</td>
+                  <td>162ms</td>
+                  <td style="color:var(--yellow);">228ms</td>
+                  <td style="color:var(--yellow);">291ms</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Infrastructure panel -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- CPU / Memory -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Infrastructure</h2>
+              <span style="font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:0.04em;">us-east-1</span>
+            </div>
+            <div class="panel-body" style="padding:12px 24px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:10px;">CPU Usage</div>
+              <div style="display:flex;flex-direction:column;gap:0;">
+                <div class="infra-row">
+                  <div class="infra-name">API Gateway</div>
+                  <div class="infra-track"><div class="infra-fill" style="width:38%;"></div></div>
+                  <div class="infra-pct" style="color:var(--green);">38%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Event Router</div>
+                  <div class="infra-track"><div class="infra-fill warn" style="width:62%;"></div></div>
+                  <div class="infra-pct" style="color:var(--yellow);">62%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Pipeline Engine</div>
+                  <div class="infra-track"><div class="infra-fill warn" style="width:71%;"></div></div>
+                  <div class="infra-pct" style="color:var(--yellow);">71%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Auth Service</div>
+                  <div class="infra-track"><div class="infra-fill" style="width:29%;"></div></div>
+                  <div class="infra-pct" style="color:var(--green);">29%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Webhooks Relay</div>
+                  <div class="infra-track"><div class="infra-fill crit" style="width:84%;"></div></div>
+                  <div class="infra-pct" style="color:var(--red);">84%</div>
+                </div>
+              </div>
+
+              <hr style="margin:16px 0;" />
+
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:10px;">Memory Usage</div>
+              <div style="display:flex;flex-direction:column;gap:0;">
+                <div class="infra-row">
+                  <div class="infra-name">API Gateway</div>
+                  <div class="infra-track"><div class="infra-fill" style="width:44%;"></div></div>
+                  <div class="infra-pct" style="color:var(--green);">44%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Event Router</div>
+                  <div class="infra-track"><div class="infra-fill" style="width:58%;"></div></div>
+                  <div class="infra-pct" style="color:var(--green);">58%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Pipeline Engine</div>
+                  <div class="infra-track"><div class="infra-fill warn" style="width:76%;"></div></div>
+                  <div class="infra-pct" style="color:var(--yellow);">76%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Auth Service</div>
+                  <div class="infra-track"><div class="infra-fill" style="width:34%;"></div></div>
+                  <div class="infra-pct" style="color:var(--green);">34%</div>
+                </div>
+                <div class="infra-row">
+                  <div class="infra-name">Webhooks Relay</div>
+                  <div class="infra-track"><div class="infra-fill warn" style="width:68%;"></div></div>
+                  <div class="infra-pct" style="color:var(--yellow);">68%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DB connection pool -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">DB Connection Pool</h2>
+            </div>
+            <div class="panel-body" style="padding:12px 24px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <span style="font-size:12px;font-weight:700;">PostgreSQL Primary</span>
+                <span style="font-size:12px;font-weight:700;color:var(--yellow);">78 / 100</span>
+              </div>
+              <div style="height:8px;background:var(--surface-2);border-radius:1px;overflow:hidden;margin-bottom:14px;">
+                <div style="height:100%;background:var(--yellow);border-radius:1px;width:78%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <span style="font-size:12px;font-weight:700;">PostgreSQL Replica</span>
+                <span style="font-size:12px;font-weight:700;color:var(--green);">31 / 100</span>
+              </div>
+              <div style="height:8px;background:var(--surface-2);border-radius:1px;overflow:hidden;margin-bottom:14px;">
+                <div style="height:100%;background:var(--green);border-radius:1px;width:31%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <span style="font-size:12px;font-weight:700;">ClickHouse</span>
+                <span style="font-size:12px;font-weight:700;color:var(--green);">22 / 50</span>
+              </div>
+              <div style="height:8px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                <div style="height:100%;background:var(--green);border-radius:1px;width:44%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cache stats -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Cache Stats — Redis</h2>
+            </div>
+            <div class="panel-body" style="padding:8px 24px;">
+              <div class="cache-row">
+                <span style="font-size:12px;font-weight:700;">Hit Rate</span>
+                <span style="font-size:16px;font-weight:900;letter-spacing:-0.02em;color:var(--green);">84%</span>
+              </div>
+              <div class="cache-row">
+                <span style="font-size:12px;color:var(--text-2);">Hits / min</span>
+                <span style="font-size:12px;font-weight:700;">3,598</span>
+              </div>
+              <div class="cache-row">
+                <span style="font-size:12px;color:var(--text-2);">Misses / min</span>
+                <span style="font-size:12px;font-weight:700;">686</span>
+              </div>
+              <div class="cache-row">
+                <span style="font-size:12px;color:var(--text-2);">Memory Used</span>
+                <span style="font-size:12px;font-weight:700;">6.2 GB / 16 GB</span>
+              </div>
+              <div class="cache-row">
+                <span style="font-size:12px;color:var(--text-2);">Evictions / min</span>
+                <span style="font-size:12px;font-weight:700;color:var(--green);">0</span>
+              </div>
+              <div class="cache-row">
+                <span style="font-size:12px;color:var(--text-2);">Connected Clients</span>
+                <span style="font-size:12px;font-weight:700;">142</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+  </script>
+</body>
+</html>

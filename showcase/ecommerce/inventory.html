@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory — Crestline Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    .filter-select {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 7px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text-1);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b6b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color 120ms;
+    }
+    .filter-select:focus { border-color: var(--text-2); }
+    .stock-mini-bar {
+      width: 56px;
+      height: 4px;
+      background: var(--surface-2);
+      border-radius: 1px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    .stock-mini-fill {
+      height: 100%;
+      border-radius: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Crestline</div>
+      <div class="sidebar-logo-sub">Commerce Admin</div>
+    </div>
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Overview
+      </a>
+      <a href="orders.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 5h6M4 8h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Orders
+      </a>
+      <a href="inventory.html" class="sidebar-item active">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4v6L7 13 1 10V4L7 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 1v12M1 4l6 3 6-3" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Inventory
+      </a>
+      <a href="customers.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Customers
+      </a>
+      <a href="revenue.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="3" height="7" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="3" width="3" height="10" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="1" width="3" height="12" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Revenue
+      </a>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M0.5 13c0-1.933 1.567-3.5 3.5-3.5m6 0c1.933 0 3.5 1.567 3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Team
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JT</div>
+        <div>
+          <div class="sidebar-user-name">Jamie Torres</div>
+          <div class="sidebar-user-role">Head of Commerce</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Crestline Admin
+        <span class="topbar-breadcrumb">/ Inventory</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm">Export Catalog</button>
+        <button class="btn btn-primary btn-sm">+ Add Product</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI Row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Total SKUs</div>
+          <div class="stat-value">1,842</div>
+          <div class="stat-delta up">↑ 64 added this quarter</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Low Stock</div>
+          <div class="stat-value yellow">48</div>
+          <div class="stat-delta" style="color:var(--yellow);">Below reorder threshold</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Out of Stock</div>
+          <div class="stat-value accent">12</div>
+          <div class="stat-delta down">↑ 3 vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Inventory Value</div>
+          <div class="stat-value">$2.1M</div>
+          <div class="stat-delta up">↑ 8% vs Q4 2023</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Category breakdown + Warehouse summary -->
+      <div class="grid-2" style="margin-bottom:24px;">
+
+        <!-- Category Breakdown -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Inventory by Category</h2>
+            <span class="badge badge-neutral">1,842 SKUs</span>
+          </div>
+          <div class="panel-body">
+            <div class="bar-chart">
+              <div class="bar-row">
+                <div class="bar-label">Outerwear</div>
+                <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+                <div class="bar-value">486</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Footwear</div>
+                <div class="bar-track"><div class="bar-fill" style="width:78%"></div></div>
+                <div class="bar-value">382</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Packs &amp; Bags</div>
+                <div class="bar-track"><div class="bar-fill yellow" style="width:54%"></div></div>
+                <div class="bar-value">264</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Climbing</div>
+                <div class="bar-track"><div class="bar-fill green" style="width:44%"></div></div>
+                <div class="bar-value">216</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Accessories</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:34%"></div></div>
+                <div class="bar-value">168</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Camping &amp; Shelter</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:28%"></div></div>
+                <div class="bar-value">136</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Navigation &amp; Elec.</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:20%"></div></div>
+                <div class="bar-value">98</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Apparel Base</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:19%"></div></div>
+                <div class="bar-value">92</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warehouse Summary -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Warehouse Status</h2>
+          </div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div style="padding:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                  <div>
+                    <div style="font-size:12px;font-weight:700;">Reno, NV — Primary</div>
+                    <div style="font-size:11px;color:var(--text-2);">West Coast distribution hub</div>
+                  </div>
+                  <span class="badge badge-green">Operational</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                  <div><div style="font-size:10px;color:var(--text-2);margin-bottom:2px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">SKUs</div><div style="font-size:16px;font-weight:900;">1,124</div></div>
+                  <div><div style="font-size:10px;color:var(--text-2);margin-bottom:2px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Units</div><div style="font-size:16px;font-weight:900;">48,200</div></div>
+                  <div><div style="font-size:10px;color:var(--text-2);margin-bottom:2px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Capacity</div><div style="font-size:16px;font-weight:900;color:var(--green);">68%</div></div>
+                </div>
+              </div>
+              <div style="padding:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                  <div>
+                    <div style="font-size:12px;font-weight:700;">Louisville, KY — East</div>
+                    <div style="font-size:11px;color:var(--text-2);">East Coast &amp; Midwest hub</div>
+                  </div>
+                  <span class="badge badge-green">Operational</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                  <div><div style="font-size:10px;color:var(--text-2);margin-bottom:2px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">SKUs</div><div style="font-size:16px;font-weight:900;">718</div></div>
+                  <div><div style="font-size:10px;color:var(--text-2);margin-bottom:2px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Units</div><div style="font-size:16px;font-weight:900;">29,840</div></div>
+                  <div><div style="font-size:10px;color:var(--text-2);margin-bottom:2px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Capacity</div><div style="font-size:16px;font-weight:900;color:var(--yellow);">84%</div></div>
+                </div>
+              </div>
+              <div style="padding:12px 16px;background:rgba(230,57,70,0.06);border:1px solid rgba(230,57,70,0.2);border-radius:2px;display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:12px;font-weight:700;color:var(--red);">12 SKUs Out of Stock</div>
+                  <div style="font-size:11px;color:var(--text-2);">Replenishment orders pending for 8</div>
+                </div>
+                <a href="#" class="btn btn-ghost btn-sm" style="border-color:rgba(230,57,70,0.3);color:var(--red);">Review →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <input class="search-input" type="text" placeholder="Search products or SKU…" style="width:260px;" />
+        <select class="filter-select">
+          <option>All Categories</option>
+          <option>Outerwear</option>
+          <option>Footwear</option>
+          <option>Packs &amp; Bags</option>
+          <option>Climbing</option>
+          <option>Accessories</option>
+        </select>
+        <select class="filter-select">
+          <option>All Statuses</option>
+          <option>In Stock</option>
+          <option>Low Stock</option>
+          <option>Out of Stock</option>
+        </select>
+        <select class="filter-select">
+          <option>All Warehouses</option>
+          <option>Reno, NV</option>
+          <option>Louisville, KY</option>
+        </select>
+        <button class="btn btn-ghost btn-sm">Clear</button>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Showing 10 of 1,842</span>
+      </div>
+
+      <!-- Inventory Table -->
+      <div class="panel">
+        <div class="panel-body-flush">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Variants</th>
+                <th>Stock</th>
+                <th>Reorder Point</th>
+                <th>Status</th>
+                <th>Warehouse</th>
+                <th>Last Restocked</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">ARC-BAR-MM</span></td>
+                <td><span class="fw-700">Arc'teryx Beta AR Jacket</span><br/><span style="font-size:11px;color:var(--text-2);">Men's Medium · Pilot Grey</span></td>
+                <td>Outerwear</td>
+                <td style="color:var(--text-2);">12</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:80%;background:var(--green);"></div></div>
+                    204
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">40</td>
+                <td><span class="badge badge-green">In Stock</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Feb 28, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">SAL-SC6-W8</span></td>
+                <td><span class="fw-700">Salomon Speedcross 6</span><br/><span style="font-size:11px;color:var(--text-2);">Women's 8 · Black/Pink</span></td>
+                <td>Footwear</td>
+                <td style="color:var(--text-2);">18</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:62%;background:var(--green);"></div></div>
+                    88
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">30</td>
+                <td><span class="badge badge-green">In Stock</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 01, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">OSP-ATM-BT</span></td>
+                <td><span class="fw-700">Osprey Atmos AG 65 Pack</span><br/><span style="font-size:11px;color:var(--text-2);">Medium · Blue Tin</span></td>
+                <td>Packs &amp; Bags</td>
+                <td style="color:var(--text-2);">6</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:35%;background:var(--yellow);"></div></div>
+                    34
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">35</td>
+                <td><span class="badge badge-yellow">Low Stock</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Jan 15, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">PAT-NPJ-WS</span></td>
+                <td><span class="fw-700">Patagonia Nano Puff Jacket</span><br/><span style="font-size:11px;color:var(--text-2);">Women's Small · Black</span></td>
+                <td>Outerwear</td>
+                <td style="color:var(--text-2);">24</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:15%;background:var(--yellow);"></div></div>
+                    <span style="color:var(--yellow);">16</span>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">50</td>
+                <td><span class="badge badge-yellow">Low Stock</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Dec 10, 2023</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">BD-MOM-HM</span></td>
+                <td><span class="fw-700">Black Diamond Momentum Harness</span><br/><span style="font-size:11px;color:var(--text-2);">Men's Medium · Blue</span></td>
+                <td>Climbing</td>
+                <td style="color:var(--text-2);">8</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:10%;background:var(--yellow);"></div></div>
+                    <span style="color:var(--yellow);">11</span>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">25</td>
+                <td><span class="badge badge-yellow">Low Stock</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Nov 30, 2023</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">HOK-SG5-M10</span></td>
+                <td><span class="fw-700">Hoka Speedgoat 5 Trail Shoe</span><br/><span style="font-size:11px;color:var(--text-2);">Men's 10 · Dune/Citrus</span></td>
+                <td>Footwear</td>
+                <td style="color:var(--text-2);">14</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:57%;background:var(--green);"></div></div>
+                    72
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">30</td>
+                <td><span class="badge badge-green">In Stock</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Feb 14, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">MSR-HNX-2P</span></td>
+                <td><span class="fw-700">MSR Hubba NX 2-Person Tent</span><br/><span style="font-size:11px;color:var(--text-2);">Standard · Green</span></td>
+                <td>Camping &amp; Shelter</td>
+                <td style="color:var(--text-2);">2</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:0%;background:var(--red);"></div></div>
+                    <span style="color:var(--red);">0</span>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">15</td>
+                <td><span class="badge badge-red">Out of Stock</span></td>
+                <td style="color:var(--text-2);">—</td>
+                <td style="color:var(--text-2);">Oct 02, 2023</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">GAR-IRM-2</span></td>
+                <td><span class="fw-700">Garmin inReach Mini 2</span><br/><span style="font-size:11px;color:var(--text-2);">Black · GPS Satellite</span></td>
+                <td>Navigation &amp; Elec.</td>
+                <td style="color:var(--text-2);">2</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:45%;background:var(--green);"></div></div>
+                    42
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">20</td>
+                <td><span class="badge badge-green">In Stock</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Mar 05, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">SMW-250-CR</span></td>
+                <td><span class="fw-700">Smartwool Merino 250 Crew</span><br/><span style="font-size:11px;color:var(--text-2);">Unisex Medium · Charcoal</span></td>
+                <td>Apparel Base</td>
+                <td style="color:var(--text-2);">16</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:70%;background:var(--green);"></div></div>
+                    180
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">60</td>
+                <td><span class="badge badge-green">In Stock</span></td>
+                <td style="color:var(--text-2);">Louisville, KY</td>
+                <td style="color:var(--text-2);">Feb 20, 2024</td>
+              </tr>
+              <tr>
+                <td><span class="font-mono" style="font-size:11px;color:var(--text-2);">LEK-TRK-P</span></td>
+                <td><span class="fw-700">Leki Micro Vario Carbon Trekking Pole</span><br/><span style="font-size:11px;color:var(--text-2);">Pair · 110–130cm</span></td>
+                <td>Accessories</td>
+                <td style="color:var(--text-2);">3</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="stock-mini-bar"><div class="stock-mini-fill" style="width:12%;background:var(--yellow);"></div></div>
+                    <span style="color:var(--yellow);">8</span>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">20</td>
+                <td><span class="badge badge-yellow">Low Stock</span></td>
+                <td style="color:var(--text-2);">Reno, NV</td>
+                <td style="color:var(--text-2);">Jan 08, 2024</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+  </script>
+</body>
+</html>

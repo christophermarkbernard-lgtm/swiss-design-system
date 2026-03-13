@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customers — Crestline Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    .segment-vip   { background: rgba(230,57,70,0.1);  color: var(--red);    border: 1px solid rgba(230,57,70,0.25); }
+    .segment-reg   { background: rgba(240,192,64,0.1); color: var(--yellow); border: 1px solid rgba(240,192,64,0.25); }
+    .segment-new   { background: rgba(76,175,130,0.1); color: var(--green);  border: 1px solid rgba(76,175,130,0.25); }
+    .customer-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 900;
+      color: white;
+      flex-shrink: 0;
+    }
+    .cohort-cell {
+      padding: 12px 16px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .cohort-cell:last-child { border-right: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-name">Crestline</div>
+      <div class="sidebar-logo-sub">Commerce Admin</div>
+    </div>
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Overview
+      </a>
+      <a href="orders.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 5h6M4 8h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Orders
+      </a>
+      <a href="inventory.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4v6L7 13 1 10V4L7 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 1v12M1 4l6 3 6-3" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Inventory
+      </a>
+      <a href="customers.html" class="sidebar-item active">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 13c0-2.485 2.462-4.5 5.5-4.5s5.5 2.015 5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Customers
+      </a>
+      <a href="revenue.html" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="3" height="7" stroke="currentColor" stroke-width="1.5"/><rect x="5.5" y="3" width="3" height="10" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="1" width="3" height="12" stroke="currentColor" stroke-width="1.5"/></svg>
+        </span>
+        Revenue
+      </a>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <nav class="sidebar-section">
+      <div class="sidebar-section-label">Settings</div>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Settings
+      </a>
+      <a href="#" class="sidebar-item">
+        <span class="sidebar-item-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M0.5 13c0-1.933 1.567-3.5 3.5-3.5m6 0c1.933 0 3.5 1.567 3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+        Team
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">JT</div>
+        <div>
+          <div class="sidebar-user-name">Jamie Torres</div>
+          <div class="sidebar-user-role">Head of Commerce</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Crestline Admin
+        <span class="topbar-breadcrumb">/ Customers</span>
+      </div>
+      <div class="topbar-right">
+        <span style="font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Q1 2024</span>
+        <button class="btn btn-ghost btn-sm">Export Segment</button>
+        <button class="btn btn-primary btn-sm">+ Add Customer</button>
+        <button class="btn-toggle" id="theme-toggle">Light</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI Row -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Customers</div>
+          <div class="stat-value">84,210</div>
+          <div class="stat-delta up">↑ 14% YoY</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">New This Month</div>
+          <div class="stat-value green">4,820</div>
+          <div class="stat-delta up">↑ 6% vs Feb</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Repeat Purchase Rate</div>
+          <div class="stat-value">42%</div>
+          <div class="stat-delta up">↑ 3pp vs Q4 2023</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Lifetime Value</div>
+          <div class="stat-value">$840</div>
+          <div class="stat-delta up">↑ 9% vs Q4 2023</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Acquisition + Geographic -->
+      <div class="grid-2" style="margin-bottom:24px;">
+
+        <!-- Acquisition Channel Breakdown -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Acquisition Channel</h2>
+            <span class="badge badge-neutral">Q1 2024 Cohort</span>
+          </div>
+          <div class="panel-body">
+            <div class="bar-chart">
+              <div class="bar-row">
+                <div class="bar-label">Organic Search</div>
+                <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+                <div class="bar-value">31%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Paid Social</div>
+                <div class="bar-track"><div class="bar-fill" style="width:77%"></div></div>
+                <div class="bar-value">24%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Direct / Brand</div>
+                <div class="bar-track"><div class="bar-fill yellow" style="width:58%"></div></div>
+                <div class="bar-value">18%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Email / Referral</div>
+                <div class="bar-track"><div class="bar-fill green" style="width:42%"></div></div>
+                <div class="bar-value">13%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Paid Search</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:32%"></div></div>
+                <div class="bar-value">10%</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Affiliate</div>
+                <div class="bar-track"><div class="bar-fill dim" style="width:13%"></div></div>
+                <div class="bar-value">4%</div>
+              </div>
+            </div>
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">CAC (Blended)</div>
+                <div style="font-size:20px;font-weight:900;letter-spacing:-0.02em;">$38.40</div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:4px;">LTV:CAC Ratio</div>
+                <div style="font-size:20px;font-weight:900;letter-spacing:-0.02em;color:var(--green);">21.9x</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Geographic Distribution -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Geographic Distribution</h2>
+            <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);">Top 5 States</span>
+          </div>
+          <div class="panel-body" style="padding-top:8px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>State</th>
+                  <th>Customers</th>
+                  <th>Revenue</th>
+                  <th>AOV</th>
+                  <th>Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="fw-700">California</span></td>
+                  <td>18,240</td>
+                  <td class="fw-700">$924,000</td>
+                  <td>$230</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:60px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:100%;height:100%;background:var(--red);border-radius:1px;"></div>
+                      </div>
+                      <span style="color:var(--text-2);">21.7%</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="fw-700">Colorado</span></td>
+                  <td>12,480</td>
+                  <td class="fw-700">$658,000</td>
+                  <td>$252</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:60px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:68%;height:100%;background:var(--red);border-radius:1px;"></div>
+                      </div>
+                      <span style="color:var(--text-2);">14.8%</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="fw-700">Washington</span></td>
+                  <td>9,840</td>
+                  <td class="fw-700">$492,000</td>
+                  <td>$241</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:60px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:54%;height:100%;background:var(--red);border-radius:1px;"></div>
+                      </div>
+                      <span style="color:var(--text-2);">11.7%</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="fw-700">Oregon</span></td>
+                  <td>7,200</td>
+                  <td class="fw-700">$370,000</td>
+                  <td>$246</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:60px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:39%;height:100%;background:var(--yellow);border-radius:1px;"></div>
+                      </div>
+                      <span style="color:var(--text-2);">8.5%</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="fw-700">New York</span></td>
+                  <td>6,010</td>
+                  <td class="fw-700">$294,000</td>
+                  <td>$234</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:60px;height:4px;background:var(--surface-2);border-radius:1px;overflow:hidden;">
+                        <div style="width:33%;height:100%;background:var(--yellow);border-radius:1px;"></div>
+                      </div>
+                      <span style="color:var(--text-2);">7.1%</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="margin-top:16px;padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px;">International</div>
+              <div style="display:flex;gap:20px;">
+                <div><div style="font-size:11px;font-weight:700;">Canada</div><div style="font-size:12px;color:var(--text-2);">3,840 customers</div></div>
+                <div><div style="font-size:11px;font-weight:700;">UK</div><div style="font-size:12px;color:var(--text-2);">1,420 customers</div></div>
+                <div><div style="font-size:11px;font-weight:700;">Australia</div><div style="font-size:12px;color:var(--text-2);">980 customers</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segment Overview -->
+      <div class="grid-3" style="margin-bottom:24px;">
+        <div class="stat-card" style="border-left:3px solid var(--red);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div class="stat-label">VIP Customers</div>
+              <div class="stat-value" style="font-size:24px;">6,840</div>
+              <div class="stat-delta">≥5 orders or LTV &gt; $1,200</div>
+            </div>
+            <span class="badge segment-vip">VIP</span>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text-2);">Avg LTV: <span style="color:var(--text-1);font-weight:700;">$2,480</span> · Avg Orders: <span style="color:var(--text-1);font-weight:700;">9.2</span></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--yellow);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div class="stat-label">Regular Customers</div>
+              <div class="stat-value" style="font-size:24px;">51,840</div>
+              <div class="stat-delta">2–4 orders, active &lt; 12 mo</div>
+            </div>
+            <span class="badge segment-reg">Regular</span>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text-2);">Avg LTV: <span style="color:var(--text-1);font-weight:700;">$680</span> · Avg Orders: <span style="color:var(--text-1);font-weight:700;">3.1</span></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--green);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div class="stat-label">New Customers</div>
+              <div class="stat-value" style="font-size:24px;">25,530</div>
+              <div class="stat-delta">1st order within last 90 days</div>
+            </div>
+            <span class="badge segment-new">New</span>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text-2);">Avg LTV: <span style="color:var(--text-1);font-weight:700;">$186</span> · Conversion to repeat: <span style="color:var(--green);font-weight:700;">38%</span></div>
+        </div>
+      </div>
+
+      <!-- Top Customers Table -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Top Customers by Lifetime Value</h2>
+          <button class="btn btn-ghost btn-sm">Export Segment →</button>
+        </div>
+        <div class="panel-body-flush">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Location</th>
+                <th>Orders</th>
+                <th>Total Spend</th>
+                <th>Avg Order</th>
+                <th>Last Purchase</th>
+                <th>Segment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:var(--red);">SK</div>
+                    <div>
+                      <div class="fw-700">Sarah Kimura</div>
+                      <div style="font-size:11px;color:var(--text-2);">s.kimura@gmail.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Boulder, CO</td>
+                <td class="fw-700">32</td>
+                <td class="fw-700" style="color:var(--green);">$8,420</td>
+                <td>$263</td>
+                <td style="color:var(--text-2);">Today</td>
+                <td><span class="badge segment-vip">VIP</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#4a6fa5;">RH</div>
+                    <div>
+                      <div class="fw-700">Ryan Holloway</div>
+                      <div style="font-size:11px;color:var(--text-2);">r.holloway@proton.me</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Seattle, WA</td>
+                <td class="fw-700">28</td>
+                <td class="fw-700" style="color:var(--green);">$7,180</td>
+                <td>$256</td>
+                <td style="color:var(--text-2);">Mar 08, 2024</td>
+                <td><span class="badge segment-vip">VIP</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#6b4f8a;">MP</div>
+                    <div>
+                      <div class="fw-700">Maya Petrov</div>
+                      <div style="font-size:11px;color:var(--text-2);">mpetrov@icloud.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Denver, CO</td>
+                <td class="fw-700">24</td>
+                <td class="fw-700" style="color:var(--green);">$6,840</td>
+                <td>$285</td>
+                <td style="color:var(--text-2);">Mar 05, 2024</td>
+                <td><span class="badge segment-vip">VIP</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#3d7a58;">CB</div>
+                    <div>
+                      <div class="fw-700">Carlos Benedetti</div>
+                      <div style="font-size:11px;color:var(--text-2);">cbenedetti@gmail.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Portland, OR</td>
+                <td class="fw-700">21</td>
+                <td class="fw-700" style="color:var(--green);">$5,240</td>
+                <td>$249</td>
+                <td style="color:var(--text-2);">Mar 01, 2024</td>
+                <td><span class="badge segment-vip">VIP</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#8a4f3d;">LK</div>
+                    <div>
+                      <div class="fw-700">Leila Karimi</div>
+                      <div style="font-size:11px;color:var(--text-2);">lkarimi@yahoo.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">San Francisco, CA</td>
+                <td class="fw-700">19</td>
+                <td class="fw-700" style="color:var(--green);">$4,980</td>
+                <td>$262</td>
+                <td style="color:var(--text-2);">Feb 28, 2024</td>
+                <td><span class="badge segment-vip">VIP</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#4f5d8a;">JM</div>
+                    <div>
+                      <div class="fw-700">Jordan Mitchell</div>
+                      <div style="font-size:11px;color:var(--text-2);">jmitchell@outlook.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Bend, OR</td>
+                <td class="fw-700">14</td>
+                <td class="fw-700">$3,620</td>
+                <td>$258</td>
+                <td style="color:var(--text-2);">Feb 14, 2024</td>
+                <td><span class="badge segment-vip">VIP</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#5d7a3d;">NH</div>
+                    <div>
+                      <div class="fw-700">Nina Hartmann</div>
+                      <div style="font-size:11px;color:var(--text-2);">nhartmann@gmail.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Salt Lake City, UT</td>
+                <td class="fw-700">11</td>
+                <td class="fw-700">$2,860</td>
+                <td>$260</td>
+                <td style="color:var(--text-2);">Mar 10, 2024</td>
+                <td><span class="badge segment-vip">VIP</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#7a4f5d;">OT</div>
+                    <div>
+                      <div class="fw-700">Oliver Tran</div>
+                      <div style="font-size:11px;color:var(--text-2);">otran@proton.me</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Austin, TX</td>
+                <td class="fw-700">4</td>
+                <td class="fw-700">$1,180</td>
+                <td>$295</td>
+                <td style="color:var(--text-2);">Mar 09, 2024</td>
+                <td><span class="badge segment-reg">Regular</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#3d5d7a;">FP</div>
+                    <div>
+                      <div class="fw-700">Fiona Park</div>
+                      <div style="font-size:11px;color:var(--text-2);">fpark@icloud.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Chicago, IL</td>
+                <td class="fw-700">3</td>
+                <td class="fw-700">$720</td>
+                <td>$240</td>
+                <td style="color:var(--text-2);">Mar 12, 2024</td>
+                <td><span class="badge segment-new">New</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="customer-avatar" style="background:#7a6b3d;">DW</div>
+                    <div>
+                      <div class="fw-700">Daniel Wu</div>
+                      <div style="font-size:11px;color:var(--text-2);">dwu@stanford.edu</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="color:var(--text-2);">Palo Alto, CA</td>
+                <td class="fw-700">2</td>
+                <td class="fw-700">$489</td>
+                <td>$244</td>
+                <td style="color:var(--text-2);">Mar 07, 2024</td>
+                <td><span class="badge segment-new">New</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      const dark = document.documentElement.classList.toggle('dark');
+      this.textContent = dark ? 'Light' : 'Dark';
+    });
+  </script>
+</body>
+</html>
